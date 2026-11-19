@@ -1,0 +1,49 @@
+using System.Text.RegularExpressions;
+using Domain.Enums;
+
+namespace Domain.Entities;
+
+public sealed class Usuario
+{
+    private Usuario()
+    {
+    }
+
+    public Guid Id { get; private set; }
+    public string NomeCompleto { get; private set; } = null!;
+    public string Email { get; private set; } = null!;
+    public string Cpf { get; private set; } = null!;
+    public string SenhaHash { get; private set; } = null!;
+    public PerfilUsuario Perfil { get; private set; }
+
+    public static Usuario CadastrarDoador(string nomeCompleto, string email, string cpf, string senhaHash)
+        => Criar(nomeCompleto, email, cpf, senhaHash, PerfilUsuario.Doador);
+
+    public static Usuario CriarGestor(string nomeCompleto, string email, string cpf, string senhaHash)
+        => Criar(nomeCompleto, email, cpf, senhaHash, PerfilUsuario.GestorONG);
+
+    private static Usuario Criar(
+        string nomeCompleto, string email, string cpf, string senhaHash, PerfilUsuario perfil)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nomeCompleto);
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+        ArgumentException.ThrowIfNullOrWhiteSpace(cpf);
+        ArgumentException.ThrowIfNullOrWhiteSpace(senhaHash);
+
+        cpf = cpf.Trim();
+        if (!Regex.IsMatch(cpf, @"\A(?:[0-9]{11}|[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2})\z"))
+        {
+            throw new ArgumentException("O CPF deve ter onze dígitos ou usar o formato 000.000.000-00.", nameof(cpf));
+        }
+
+        return new Usuario
+        {
+            Id = Guid.NewGuid(),
+            NomeCompleto = nomeCompleto.Trim(),
+            Email = email.Trim().ToLowerInvariant(),
+            Cpf = cpf.Replace(".", "").Replace("-", ""),
+            SenhaHash = senhaHash,
+            Perfil = perfil
+        };
+    }
+}

@@ -1,4 +1,4 @@
-namespace Domain.Entities;
+namespace Domain.Entidades;
 
 public sealed class ArrecadacaoCampanha
 {

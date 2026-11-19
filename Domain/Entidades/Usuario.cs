@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using Domain.Enums;
 
-namespace Domain.Entities;
+namespace Domain.Entidades;
 
 public sealed class Usuario
 {

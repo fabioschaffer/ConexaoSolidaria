@@ -52,6 +52,11 @@ public sealed class Campanha
             throw new ArgumentOutOfRangeException(nameof(status));
         }
 
+        if (Status == StatusCampanha.Cancelada && status != StatusCampanha.Cancelada)
+        {
+            throw new CampanhaCanceladaException();
+        }
+
         Titulo = titulo.Trim();
         Descricao = descricao.Trim();
         DataInicio = dataInicio.ToUniversalTime();
@@ -59,6 +64,8 @@ public sealed class Campanha
         MetaFinanceira = metaFinanceira;
         Status = status;
     }
+
+    public void Cancelar() => Status = StatusCampanha.Cancelada;
 
     public bool AceitaDoacaoEm(DateTimeOffset dataRecebimento)
         => Status == StatusCampanha.Ativa && dataRecebimento >= DataInicio && dataRecebimento < DataFim;

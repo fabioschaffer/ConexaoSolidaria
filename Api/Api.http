@@ -1,6 +1,53 @@
 @Api_HostAddress = http://localhost:5033
+@campanhaId = {{criarCampanha.response.body.$.id}}
 
-GET {{Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Criar campanha
+# @name criarCampanha
+POST {{Api_HostAddress}}/api/campanhas
+Content-Type: application/json
 
-###
+{
+  "titulo": "Campanha de inverno",
+  "descricao": "Arrecadação para famílias da comunidade",
+  "dataInicio": "{{$datetime iso8601}}",
+  "dataFim": "{{$datetime iso8601 30 d}}",
+  "metaFinanceira": 5000.00,
+  "status": "Ativa"
+}
+
+### Consultar campanha
+GET {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+
+### Listar todas
+GET {{Api_HostAddress}}/api/campanhas
+
+### Filtrar pelo status
+GET {{Api_HostAddress}}/api/campanhas?status=Ativa
+
+### Atualizar campanha
+PUT {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+Content-Type: application/json
+
+{
+  "titulo": "Campanha de inverno ampliada",
+  "descricao": "Arrecadação para famílias da comunidade",
+  "dataInicio": "{{$datetime iso8601}}",
+  "dataFim": "{{$datetime iso8601 45 d}}",
+  "metaFinanceira": 7500.00,
+  "status": "Ativa"
+}
+
+### Cancelar campanha
+DELETE {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+
+### Repetir cancelamento
+DELETE {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+
+### Consultar campanha cancelada
+GET {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+
+### Status inválido
+GET {{Api_HostAddress}}/api/campanhas?status=Desconhecido
+
+### Campanha inexistente
+GET {{Api_HostAddress}}/api/campanhas/00000000-0000-0000-0000-000000000000

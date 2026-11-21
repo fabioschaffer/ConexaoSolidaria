@@ -1,6 +1,7 @@
 @Api_HostAddress = http://localhost:5033
 @campanhaId = {{criarCampanha.response.body.$.id}}
 @token = {{login.response.body.$.accessToken}}
+@senhaGestor = SUBSTITUA_PELA_SENHA_DO_GESTOR
 
 
 ### Cadastrar doador
@@ -15,14 +16,14 @@ Content-Type: application/json
   "senha": "SenhaLocalDeTeste!123"
 }
 
-### Obter token
+### Obter token de gestor
 # @name login
 POST {{Api_HostAddress}}/api/autenticacao/login
 Content-Type: application/json
 
 {
-  "email": "doador@example.com",
-  "senha": "SenhaLocalDeTeste!123"
+  "email": "gestor@example.com",
+  "senha": "{{senhaGestor}}"
 }
 
 ### Criar campanha
@@ -85,3 +86,6 @@ Authorization: Bearer {{token}}
 ### Campanha inexistente
 GET {{Api_HostAddress}}/api/campanhas/0
 Authorization: Bearer {{token}}
+
+### Listar campanhas ativas no painel público
+GET {{Api_HostAddress}}/api/transparencia/campanhas

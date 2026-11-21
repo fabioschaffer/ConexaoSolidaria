@@ -1,12 +1,13 @@
 using Application.Campanhas;
-using Domain.Entidades;
 using Domain.Enums;
 using Domain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = nameof(PerfilUsuario.GestorONG))]
 [Route("api/campanhas")]
 public sealed class CampanhasController(CampanhaService campanhas) : ControllerBase
 {

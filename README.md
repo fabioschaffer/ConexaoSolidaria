@@ -24,6 +24,8 @@ Configure `Jwt__Chave` na API com pelo menos 32 bytes aleatórios codificados em
 
 O cadastro público aceita somente o perfil `Doador`. A listagem de usuários exige o perfil `GestorONG`. A consulta por ID, a edição e a exclusão de conta são restritas ao titular. A edição de conta preserva o perfil existente. Os gestores já cadastrados podem usar a mesma rota de login.
 
+Todas as operações em `/api/campanhas` exigem um JWT com o perfil `GestorONG`. Para executar os exemplos de gestão em `Api.http`, informe as credenciais de um gestor existente na requisição de login. O endpoint público `GET /api/transparencia/campanhas` lista as campanhas ativas com título, meta financeira e o total das doações processadas.
+
 ## Recriar o banco local com IDs inteiros
 
 Se o banco local ainda usa IDs UUID, recrie-o com a migration inicial. O comando `drop` apaga o banco e todos os seus dados. Verifique se a conexão aponta para o PostgreSQL local antes de executar.

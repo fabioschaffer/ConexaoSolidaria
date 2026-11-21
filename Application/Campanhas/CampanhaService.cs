@@ -31,6 +31,10 @@ public sealed class CampanhaService(ICampanhaRepositorio repositorio, TimeProvid
         return campanhas.Select(CampanhaDto.De).ToArray();
     }
 
+    public Task<IReadOnlyList<CampanhaTransparenciaDto>> ListarParaTransparenciaAsync(
+        CancellationToken cancellationToken)
+        => repositorio.ListarParaTransparenciaAsync(cancellationToken);
+
     public async Task<ResultadoAlteracaoCampanha> AtualizarAsync(
         int id, CampanhaDados dados, CancellationToken cancellationToken)
     {

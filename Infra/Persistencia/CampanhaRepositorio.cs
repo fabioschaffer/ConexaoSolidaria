@@ -30,6 +30,20 @@ public sealed class CampanhaRepositorio(ConexaoSolidariaContext contexto) : ICam
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<CampanhaTransparenciaDto>> ListarParaTransparenciaAsync(
+        CancellationToken cancellationToken)
+        => await contexto.Campanhas.AsNoTracking()
+            .Where(c => c.Status == StatusCampanha.Ativa)
+            .OrderByDescending(c => c.DataInicio)
+            .ThenBy(c => c.Id)
+            .Select(c => new CampanhaTransparenciaDto(
+                c.Titulo,
+                c.MetaFinanceira,
+                contexto.Doacoes
+                    .Where(d => d.CampanhaId == c.Id && d.Status == StatusDoacao.Processada)
+                    .Sum(d => (decimal?)d.Valor) ?? 0m))
+            .ToListAsync(cancellationToken);
+
     public async Task<bool> TentarSalvarAlteracoesAsync(CancellationToken cancellationToken)
     {
         try

@@ -9,7 +9,7 @@ public sealed class Usuario
     {
     }
 
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
     public string Nome { get; private set; } = null!;
     public string Email { get; private set; } = null!;
     public string Cpf { get; private set; } = null!;
@@ -25,7 +25,7 @@ public sealed class Usuario
     private static Usuario Criar(
         string nome, string email, string cpf, string senha, PerfilUsuario perfil)
     {
-        var usuario = new Usuario { Id = Guid.NewGuid() };
+        var usuario = new Usuario();
         usuario.Editar(nome, email, cpf, perfil, senha);
         return usuario;
     }

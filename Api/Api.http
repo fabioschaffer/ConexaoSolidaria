@@ -50,4 +50,4 @@ GET {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
 GET {{Api_HostAddress}}/api/campanhas?status=Desconhecido
 
 ### Campanha inexistente
-GET {{Api_HostAddress}}/api/campanhas/00000000-0000-0000-0000-000000000000
+GET {{Api_HostAddress}}/api/campanhas/0

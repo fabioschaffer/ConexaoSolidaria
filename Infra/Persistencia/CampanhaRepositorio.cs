@@ -13,7 +13,7 @@ public sealed class CampanhaRepositorio(ConexaoSolidariaContext contexto) : ICam
         await contexto.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<Campanha?> ObterAsync(Guid id, CancellationToken cancellationToken)
+    public Task<Campanha?> ObterAsync(int id, CancellationToken cancellationToken)
         => contexto.Campanhas.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Campanha>> ListarAsync(

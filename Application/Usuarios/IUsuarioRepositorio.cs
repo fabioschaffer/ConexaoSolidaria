@@ -5,7 +5,7 @@ namespace Application.Usuarios;
 public interface IUsuarioRepositorio
 {
     void Adicionar(Usuario usuario);
-    Task<Usuario?> ObterAsync(Guid id, CancellationToken cancellationToken);
+    Task<Usuario?> ObterAsync(int id, CancellationToken cancellationToken);
     Task<IReadOnlyList<UsuarioDto>> ListarAsync(CancellationToken cancellationToken);
     void Remover(Usuario usuario);
     Task<ResultadoAlteracaoUsuario> SalvarAsync(CancellationToken cancellationToken);
@@ -17,5 +17,6 @@ public enum ResultadoAlteracaoUsuario
     NaoEncontrado,
     EmailDuplicado,
     CpfDuplicado,
-    Conflito
+    Conflito,
+    PossuiDoacoes
 }

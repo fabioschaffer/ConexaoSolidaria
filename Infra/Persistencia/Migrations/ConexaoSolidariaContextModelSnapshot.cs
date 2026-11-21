@@ -24,8 +24,11 @@ namespace Infra.Persistencia.Migrations
 
             modelBuilder.Entity("Domain.Entidades.Campanha", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("DataFim")
                         .HasColumnType("timestamp with time zone");
@@ -61,11 +64,14 @@ namespace Infra.Persistencia.Migrations
 
             modelBuilder.Entity("Domain.Entidades.Doacao", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("CampanhaId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CampanhaId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("DataProcessamento")
                         .HasColumnType("timestamp with time zone");
@@ -73,8 +79,8 @@ namespace Infra.Persistencia.Migrations
                     b.Property<DateTimeOffset>("DataRecebimento")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("DoadorId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("DoadorId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -85,13 +91,20 @@ namespace Infra.Persistencia.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CampanhaId");
+
+                    b.HasIndex("DoadorId");
+
                     b.ToTable("Doacoes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entidades.Usuario", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Cpf")
                         .IsRequired()
@@ -128,6 +141,25 @@ namespace Infra.Persistencia.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuarios", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entidades.Doacao", b =>
+                {
+                    b.HasOne("Domain.Entidades.Campanha", "Campanha")
+                        .WithMany()
+                        .HasForeignKey("CampanhaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entidades.Usuario", "Doador")
+                        .WithMany()
+                        .HasForeignKey("DoadorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Campanha");
+
+                    b.Navigation("Doador");
                 });
 #pragma warning restore 612, 618
         }

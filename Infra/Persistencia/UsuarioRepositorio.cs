@@ -9,7 +9,7 @@ public sealed class UsuarioRepositorio(ConexaoSolidariaContext contexto) : IUsua
 {
     public void Adicionar(Usuario usuario) => contexto.Usuarios.Add(usuario);
 
-    public Task<Usuario?> ObterAsync(Guid id, CancellationToken cancellationToken)
+    public Task<Usuario?> ObterAsync(int id, CancellationToken cancellationToken)
         => contexto.Usuarios.SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<UsuarioDto>> ListarAsync(CancellationToken cancellationToken)
@@ -31,6 +31,11 @@ public sealed class UsuarioRepositorio(ConexaoSolidariaContext contexto) : IUsua
         catch (DbUpdateConcurrencyException)
         {
             return ResultadoAlteracaoUsuario.Conflito;
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException
+            { SqlState: PostgresErrorCodes.ForeignKeyViolation, ConstraintName: "FK_Doacoes_Usuarios_DoadorId" })
+        {
+            return ResultadoAlteracaoUsuario.PossuiDoacoes;
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException
             { SqlState: PostgresErrorCodes.UniqueViolation } erro)

@@ -27,10 +27,10 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
         }
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType<CampanhaDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CampanhaDto>> Obter(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<CampanhaDto>> Obter(int id, CancellationToken cancellationToken)
     {
         var campanha = await campanhas.ObterAsync(id, cancellationToken);
         return campanha is null ? CampanhaNaoEncontrada() : Ok(campanha);
@@ -52,13 +52,13 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
         }
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Atualizar(
-        Guid id, CampanhaDados dados, CancellationToken cancellationToken)
+        int id, CampanhaDados dados, CancellationToken cancellationToken)
     {
         try
         {
@@ -74,11 +74,11 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
         }
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Cancelar(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Cancelar(int id, CancellationToken cancellationToken)
         => ResponderAlteracao(await campanhas.CancelarAsync(id, cancellationToken));
 
     private ObjectResult CampanhaNaoEncontrada()

@@ -9,7 +9,7 @@ public sealed class Campanha
     {
     }
 
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
     public string Titulo { get; private set; } = null!;
     public string Descricao { get; private set; } = null!;
     public DateTimeOffset DataInicio { get; private set; }
@@ -28,7 +28,7 @@ public sealed class Campanha
 
         status = StatusCampanha.Ativa;
 
-        var campanha = new Campanha { Id = Guid.NewGuid() };
+        var campanha = new Campanha();
         campanha.Editar(titulo, descricao, dataInicio, dataFim, metaFinanceira, status);
         return campanha;
     }

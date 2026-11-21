@@ -13,7 +13,7 @@ public sealed class CampanhaService(ICampanhaRepositorio repositorio, TimeProvid
         return CampanhaDto.De(campanha);
     }
 
-    public async Task<CampanhaDto?> ObterAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<CampanhaDto?> ObterAsync(int id, CancellationToken cancellationToken)
     {
         var campanha = await repositorio.ObterAsync(id, cancellationToken);
         return campanha is null ? null : CampanhaDto.De(campanha);
@@ -32,7 +32,7 @@ public sealed class CampanhaService(ICampanhaRepositorio repositorio, TimeProvid
     }
 
     public async Task<ResultadoAlteracaoCampanha> AtualizarAsync(
-        Guid id, CampanhaDados dados, CancellationToken cancellationToken)
+        int id, CampanhaDados dados, CancellationToken cancellationToken)
     {
         var campanha = await repositorio.ObterAsync(id, cancellationToken);
         if (campanha is null)
@@ -45,7 +45,7 @@ public sealed class CampanhaService(ICampanhaRepositorio repositorio, TimeProvid
         return await SalvarAsync(cancellationToken);
     }
 
-    public async Task<ResultadoAlteracaoCampanha> CancelarAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ResultadoAlteracaoCampanha> CancelarAsync(int id, CancellationToken cancellationToken)
     {
         var campanha = await repositorio.ObterAsync(id, cancellationToken);
         if (campanha is null)

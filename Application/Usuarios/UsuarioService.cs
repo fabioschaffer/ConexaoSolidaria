@@ -22,7 +22,7 @@ public sealed class UsuarioService(IUsuarioRepositorio repositorio, IHashSenha h
         return (resultado, resultado == ResultadoAlteracaoUsuario.Sucesso ? UsuarioDto.De(usuario) : null);
     }
 
-    public async Task<UsuarioDto?> ObterAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<UsuarioDto?> ObterAsync(int id, CancellationToken cancellationToken)
     {
         var usuario = await repositorio.ObterAsync(id, cancellationToken);
         return usuario is null ? null : UsuarioDto.De(usuario);
@@ -32,7 +32,7 @@ public sealed class UsuarioService(IUsuarioRepositorio repositorio, IHashSenha h
         => repositorio.ListarAsync(cancellationToken);
 
     public async Task<ResultadoAlteracaoUsuario> AtualizarAsync(
-        Guid id, AtualizarUsuarioDados dados, CancellationToken cancellationToken)
+        int id, AtualizarUsuarioDados dados, CancellationToken cancellationToken)
     {
         var usuario = await repositorio.ObterAsync(id, cancellationToken);
         if (usuario is null)
@@ -51,7 +51,7 @@ public sealed class UsuarioService(IUsuarioRepositorio repositorio, IHashSenha h
         return await repositorio.SalvarAsync(cancellationToken);
     }
 
-    public async Task<ResultadoAlteracaoUsuario> RemoverAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ResultadoAlteracaoUsuario> RemoverAsync(int id, CancellationToken cancellationToken)
     {
         var usuario = await repositorio.ObterAsync(id, cancellationToken);
         if (usuario is null)

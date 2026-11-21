@@ -4,7 +4,7 @@ using Domain.Enums;
 namespace Application.Campanhas;
 
 public sealed record CampanhaDto(
-    Guid Id,
+    int Id,
     string Titulo,
     string Descricao,
     DateTimeOffset DataInicio,

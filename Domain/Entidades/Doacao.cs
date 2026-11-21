@@ -8,9 +8,11 @@ public sealed class Doacao
     {
     }
 
-    public Guid Id { get; private set; }
-    public Guid CampanhaId { get; private set; }
-    public Guid DoadorId { get; private set; }
+    public int Id { get; private set; }
+    public int CampanhaId { get; private set; }
+    public int DoadorId { get; private set; }
+    public Campanha Campanha { get; private set; } = null!;
+    public Usuario Doador { get; private set; } = null!;
     public decimal Valor { get; private set; }
     public StatusDoacao Status { get; private set; }
     public DateTimeOffset DataRecebimento { get; private set; }
@@ -38,9 +40,10 @@ public sealed class Doacao
 
         return new Doacao
         {
-            Id = Guid.NewGuid(),
             CampanhaId = campanha.Id,
             DoadorId = doador.Id,
+            Campanha = campanha,
+            Doador = doador,
             Valor = valor,
             Status = StatusDoacao.Recebida,
             DataRecebimento = dataRecebimento.ToUniversalTime()

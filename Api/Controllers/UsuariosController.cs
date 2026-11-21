@@ -31,22 +31,22 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<UsuarioDto>>> Listar(CancellationToken cancellationToken)
         => Ok(await usuarios.ListarAsync(cancellationToken));
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType<UsuarioDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UsuarioDto>> Obter(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<UsuarioDto>> Obter(int id, CancellationToken cancellationToken)
     {
         var usuario = await usuarios.ObterAsync(id, cancellationToken);
         return usuario is null ? UsuarioNaoEncontrado() : Ok(usuario);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Atualizar(
-        Guid id, AtualizarUsuarioDados dados, CancellationToken cancellationToken)
+        int id, AtualizarUsuarioDados dados, CancellationToken cancellationToken)
     {
         try
         {
@@ -58,11 +58,11 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
         }
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Remover(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Remover(int id, CancellationToken cancellationToken)
         => ResponderAlteracao(await usuarios.RemoverAsync(id, cancellationToken));
 
     private ObjectResult UsuarioNaoEncontrado()
@@ -76,6 +76,8 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
             statusCode: StatusCodes.Status409Conflict, detail: "O e-mail já está cadastrado."),
         ResultadoAlteracaoUsuario.CpfDuplicado => Problem(
             statusCode: StatusCodes.Status409Conflict, detail: "O CPF já está cadastrado."),
+        ResultadoAlteracaoUsuario.PossuiDoacoes => Problem(
+            statusCode: StatusCodes.Status409Conflict, detail: "O usuário possui doações vinculadas."),
         ResultadoAlteracaoUsuario.Conflito => Problem(
             statusCode: StatusCodes.Status409Conflict, detail: "O usuário foi alterado por outra requisição."),
         _ => throw new ArgumentOutOfRangeException(nameof(resultado))

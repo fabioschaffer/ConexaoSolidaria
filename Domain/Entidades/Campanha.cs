@@ -25,6 +25,8 @@ public sealed class Campanha
             throw new ArgumentOutOfRangeException(nameof(dataFim), "A data de término não pode estar no passado.");
         }
 
+        status = StatusCampanha.Ativa;
+
         var campanha = new Campanha { Id = Guid.NewGuid() };
         campanha.Editar(titulo, descricao, dataInicio, dataFim, metaFinanceira, status);
         return campanha;

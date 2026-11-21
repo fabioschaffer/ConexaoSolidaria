@@ -13,22 +13,22 @@ public sealed class Usuario
     public string NomeCompleto { get; private set; } = null!;
     public string Email { get; private set; } = null!;
     public string Cpf { get; private set; } = null!;
-    public string SenhaHash { get; private set; } = null!;
+    public string Senha { get; private set; } = null!;
     public PerfilUsuario Perfil { get; private set; }
 
-    public static Usuario CadastrarDoador(string nomeCompleto, string email, string cpf, string senhaHash)
-        => Criar(nomeCompleto, email, cpf, senhaHash, PerfilUsuario.Doador);
+    public static Usuario CadastrarDoador(string nomeCompleto, string email, string cpf, string senha)
+        => Criar(nomeCompleto, email, cpf, senha, PerfilUsuario.Doador);
 
-    public static Usuario CriarGestor(string nomeCompleto, string email, string cpf, string senhaHash)
-        => Criar(nomeCompleto, email, cpf, senhaHash, PerfilUsuario.GestorONG);
+    public static Usuario CriarGestor(string nomeCompleto, string email, string cpf, string senha)
+        => Criar(nomeCompleto, email, cpf, senha, PerfilUsuario.GestorONG);
 
     private static Usuario Criar(
-        string nomeCompleto, string email, string cpf, string senhaHash, PerfilUsuario perfil)
+        string nomeCompleto, string email, string cpf, string senha, PerfilUsuario perfil)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nomeCompleto);
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(cpf);
-        ArgumentException.ThrowIfNullOrWhiteSpace(senhaHash);
+        ArgumentException.ThrowIfNullOrWhiteSpace(senha);
 
         cpf = cpf.Trim();
         if (!Regex.IsMatch(cpf, @"\A(?:[0-9]{11}|[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2})\z"))
@@ -42,7 +42,7 @@ public sealed class Usuario
             NomeCompleto = nomeCompleto.Trim(),
             Email = email.Trim().ToLowerInvariant(),
             Cpf = cpf.Replace(".", "").Replace("-", ""),
-            SenhaHash = senhaHash,
+            Senha = senha,
             Perfil = perfil
         };
     }

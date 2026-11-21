@@ -12,6 +12,7 @@ public sealed class Doacao
     public Guid CampanhaId { get; private set; }
     public Guid DoadorId { get; private set; }
     public decimal Valor { get; private set; }
+    public StatusDoacao Status { get; private set; }
     public DateTimeOffset DataRecebimento { get; private set; }
     public DateTimeOffset? DataProcessamento { get; private set; }
 
@@ -41,6 +42,7 @@ public sealed class Doacao
             CampanhaId = campanha.Id,
             DoadorId = doador.Id,
             Valor = valor,
+            Status = StatusDoacao.Recebida,
             DataRecebimento = dataRecebimento.ToUniversalTime()
         };
     }
@@ -59,5 +61,6 @@ public sealed class Doacao
         }
 
         DataProcessamento = dataProcessamento.ToUniversalTime();
+        Status = StatusDoacao.Processada;
     }
 }

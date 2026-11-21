@@ -59,6 +59,35 @@ namespace Infra.Persistencia.Migrations
                     b.ToTable("Campanhas", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entidades.Doacao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CampanhaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("DataProcessamento")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("DataRecebimento")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DoadorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(31, 2)
+                        .HasColumnType("numeric(31,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Doacoes", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entidades.Usuario", b =>
                 {
                     b.Property<Guid>("Id")

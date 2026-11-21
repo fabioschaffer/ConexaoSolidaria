@@ -7,6 +7,7 @@ public sealed class ConexaoSolidariaContext(DbContextOptions<ConexaoSolidariaCon
     : DbContext(options)
 {
     public DbSet<Campanha> Campanhas => Set<Campanha>();
+    public DbSet<Doacao> Doacoes => Set<Doacao>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,5 +35,12 @@ public sealed class ConexaoSolidariaContext(DbContextOptions<ConexaoSolidariaCon
         usuario.HasIndex(u => u.Email).IsUnique();
         usuario.HasIndex(u => u.Cpf).IsUnique();
         usuario.Property<uint>("xmin").IsRowVersion();
+
+        var doacao = modelBuilder.Entity<Doacao>();
+        doacao.ToTable("Doacoes");
+        doacao.HasKey(d => d.Id);
+        doacao.Property(d => d.Id).ValueGeneratedNever();
+        doacao.Property(d => d.Valor).HasPrecision(31, 2);
+        doacao.Property(d => d.Status).IsRequired();
     }
 }

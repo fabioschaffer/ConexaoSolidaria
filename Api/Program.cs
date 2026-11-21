@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using Application.Campanhas;
+using Application.Usuarios;
+using Infra.Seguranca;
 using Infra.Persistencia;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +21,9 @@ var conexao = builder.Configuration.GetConnectionString("ConexaoSolidaria")
 builder.Services.AddDbContext<ConexaoSolidariaContext>(options => options.UseNpgsql(conexao));
 builder.Services.AddScoped<ICampanhaRepositorio, CampanhaRepositorio>();
 builder.Services.AddScoped<CampanhaService>();
+builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<IHashSenha, HashSenha>();
+builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddSingleton(TimeProvider.System);
 
 var app = builder.Build();

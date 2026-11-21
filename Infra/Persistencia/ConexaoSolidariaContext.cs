@@ -26,10 +26,13 @@ public sealed class ConexaoSolidariaContext(DbContextOptions<ConexaoSolidariaCon
         usuario.ToTable("Usuarios");
         usuario.HasKey(u => u.Id);
         usuario.Property(u => u.Id).ValueGeneratedNever();
-        usuario.Property(u => u.NomeCompleto).IsRequired();
+        usuario.Property(u => u.Nome).IsRequired();
         usuario.Property(u => u.Email).IsRequired();
         usuario.Property(u => u.Cpf).HasMaxLength(11).IsRequired();
         usuario.Property(u => u.Senha).IsRequired();
         usuario.Property(u => u.Perfil).IsRequired();
+        usuario.HasIndex(u => u.Email).IsUnique();
+        usuario.HasIndex(u => u.Cpf).IsUnique();
+        usuario.Property<uint>("xmin").IsRowVersion();
     }
 }

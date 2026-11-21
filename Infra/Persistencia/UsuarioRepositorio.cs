@@ -12,6 +12,9 @@ public sealed class UsuarioRepositorio(ConexaoSolidariaContext contexto) : IUsua
     public Task<Usuario?> ObterAsync(int id, CancellationToken cancellationToken)
         => contexto.Usuarios.SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
 
+    public Task<Usuario?> ObterPorEmailAsync(string email, CancellationToken cancellationToken)
+        => contexto.Usuarios.AsNoTracking().SingleOrDefaultAsync(u => u.Email == email, cancellationToken);
+
     public async Task<IReadOnlyList<UsuarioDto>> ListarAsync(CancellationToken cancellationToken)
         => await contexto.Usuarios.AsNoTracking()
             .OrderBy(u => u.Nome)

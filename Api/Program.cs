@@ -1,9 +1,13 @@
 using System.Text.Json.Serialization;
+using Api.Seguranca;
 using Application.Campanhas;
 using Application.Usuarios;
 using Infra.Seguranca;
 using Infra.Persistencia;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +16,44 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     options.JsonSerializerOptions.RespectRequiredConstructorParameters = true;
 });
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT"
+        };
+        document.Security = [new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        }];
+        return Task.CompletedTask;
+    });
+    options.AddOperationTransformer((operation, context, _) =>
+    {
+        if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAllowAnonymous>().Any())
+        {
+            operation.Security = [];
+        }
+        return Task.CompletedTask;
+    });
+});
 builder.Services.AddProblemDetails();
+
+var tokens = new TokenJwt(builder.Configuration, TimeProvider.System);
+builder.Services.AddSingleton(tokens);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.MapInboundClaims = false;
+    options.TokenValidationParameters = tokens.ParametrosValidacao;
+});
+builder.Services.AddAuthorizationBuilder().SetFallbackPolicy(
+    new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
 var conexao = builder.Configuration.GetConnectionString("ConexaoSolidaria")
     ?? throw new InvalidOperationException("Configure a conexão ConnectionStrings:ConexaoSolidaria.");
@@ -33,12 +73,14 @@ app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi().AllowAnonymous();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/openapi/v1.json", "Conexão Solidária v1");
     });
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();

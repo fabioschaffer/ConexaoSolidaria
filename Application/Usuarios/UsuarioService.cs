@@ -5,6 +5,15 @@ namespace Application.Usuarios;
 
 public sealed class UsuarioService(IUsuarioRepositorio repositorio, IHashSenha hashSenha)
 {
+    public async Task<UsuarioDto?> AutenticarAsync(
+        string email, string senha, CancellationToken cancellationToken)
+    {
+        var usuario = await repositorio.ObterPorEmailAsync(email.Trim().ToLowerInvariant(), cancellationToken);
+        return usuario is not null && hashSenha.Verificar(usuario.Senha, senha)
+            ? UsuarioDto.De(usuario)
+            : null;
+    }
+
     public async Task<(ResultadoAlteracaoUsuario Resultado, UsuarioDto? Usuario)> CriarAsync(
         CriarUsuarioDados dados, CancellationToken cancellationToken)
     {
@@ -38,6 +47,11 @@ public sealed class UsuarioService(IUsuarioRepositorio repositorio, IHashSenha h
         if (usuario is null)
         {
             return ResultadoAlteracaoUsuario.NaoEncontrado;
+        }
+
+        if (dados.Perfil != usuario.Perfil)
+        {
+            return ResultadoAlteracaoUsuario.PerfilInalteravel;
         }
 
         string? senha = null;

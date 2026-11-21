@@ -1,9 +1,34 @@
 @Api_HostAddress = http://localhost:5033
 @campanhaId = {{criarCampanha.response.body.$.id}}
+@token = {{login.response.body.$.accessToken}}
+
+
+### Cadastrar doador
+POST {{Api_HostAddress}}/api/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Doador de teste",
+  "email": "doador@example.com",
+  "cpf": "12345678901",
+  "perfil": "Doador",
+  "senha": "SenhaLocalDeTeste!123"
+}
+
+### Obter token
+# @name login
+POST {{Api_HostAddress}}/api/autenticacao/login
+Content-Type: application/json
+
+{
+  "email": "doador@example.com",
+  "senha": "SenhaLocalDeTeste!123"
+}
 
 ### Criar campanha
 # @name criarCampanha
 POST {{Api_HostAddress}}/api/campanhas
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -17,15 +42,19 @@ Content-Type: application/json
 
 ### Consultar campanha
 GET {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+Authorization: Bearer {{token}}
 
 ### Listar todas
 GET {{Api_HostAddress}}/api/campanhas
+Authorization: Bearer {{token}}
 
 ### Filtrar pelo status
 GET {{Api_HostAddress}}/api/campanhas?status=Ativa
+Authorization: Bearer {{token}}
 
 ### Atualizar campanha
 PUT {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -39,15 +68,20 @@ Content-Type: application/json
 
 ### Cancelar campanha
 DELETE {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+Authorization: Bearer {{token}}
 
 ### Repetir cancelamento
 DELETE {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+Authorization: Bearer {{token}}
 
 ### Consultar campanha cancelada
 GET {{Api_HostAddress}}/api/campanhas/{{campanhaId}}
+Authorization: Bearer {{token}}
 
 ### Status inválido
 GET {{Api_HostAddress}}/api/campanhas?status=Desconhecido
+Authorization: Bearer {{token}}
 
 ### Campanha inexistente
 GET {{Api_HostAddress}}/api/campanhas/0
+Authorization: Bearer {{token}}

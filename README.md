@@ -7,11 +7,22 @@ Com Docker, o SDK .NET 10 e a ferramenta `dotnet-ef` 10.x disponíveis, execute 
 ```powershell
 docker compose up -d --wait
 $env:ASPNETCORE_ENVIRONMENT = 'Development'
+$env:Jwt__Chave = [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
 dotnet ef database update --project Infra --startup-project Api
 dotnet run --project Api
 ```
 
 Use [Api.http](Api/Api.http) para executar as requisições. O `DELETE` cancela a campanha e mantém o registro disponível para consulta.
+
+## Autenticação JWT
+
+Configure `Jwt__Chave` na API com pelo menos 32 bytes aleatórios codificados em Base64. Mantenha a chave em um gerenciador de segredos no ambiente de implantação e sirva a API via HTTPS. Os parâmetros opcionais `Jwt__Emissor` e `Jwt__Audiencia` têm os valores padrão `ConexaoSolidaria` e `ConexaoSolidaria.Api`.
+
+1. Cadastre um doador em `POST /api/usuarios` ou use uma conta existente.
+2. Envie `email` e `senha` a `POST /api/autenticacao/login`. A resposta contém `accessToken`, `tokenType` e `expiresIn` (28.800 segundos, ou 8 horas).
+3. Envie `Authorization: Bearer <accessToken>` nas rotas protegidas. No Swagger, use **Authorize** e cole o token.
+
+O cadastro público aceita somente o perfil `Doador`. A listagem de usuários exige o perfil `GestorONG`. A consulta por ID, a edição e a exclusão de conta são restritas ao titular. A edição de conta preserva o perfil existente. Os gestores já cadastrados podem usar a mesma rota de login.
 
 ## Recriar o banco local com IDs inteiros
 

@@ -1,4 +1,6 @@
 using Application.Usuarios;
+using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -8,12 +10,19 @@ namespace Api.Controllers;
 public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
 {
     [HttpPost]
+    [AllowAnonymous]
     [ProducesResponseType<UsuarioDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UsuarioDto>> Criar(
         CriarUsuarioDados dados, CancellationToken cancellationToken)
     {
+        if (dados.Perfil != PerfilUsuario.Doador)
+        {
+            return Problem(statusCode: StatusCodes.Status400BadRequest,
+                detail: "O cadastro público está disponível para doadores.");
+        }
+
         try
         {
             var (resultado, usuario) = await usuarios.CriarAsync(dados, cancellationToken);
@@ -28,6 +37,7 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = nameof(PerfilUsuario.GestorONG))]
     public async Task<ActionResult<IReadOnlyList<UsuarioDto>>> Listar(CancellationToken cancellationToken)
         => Ok(await usuarios.ListarAsync(cancellationToken));
 
@@ -36,6 +46,11 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UsuarioDto>> Obter(int id, CancellationToken cancellationToken)
     {
+        if (!EhTitular(id))
+        {
+            return Forbid();
+        }
+
         var usuario = await usuarios.ObterAsync(id, cancellationToken);
         return usuario is null ? UsuarioNaoEncontrado() : Ok(usuario);
     }
@@ -48,6 +63,11 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     public async Task<IActionResult> Atualizar(
         int id, AtualizarUsuarioDados dados, CancellationToken cancellationToken)
     {
+        if (!EhTitular(id))
+        {
+            return Forbid();
+        }
+
         try
         {
             return ResponderAlteracao(await usuarios.AtualizarAsync(id, dados, cancellationToken));
@@ -63,7 +83,9 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Remover(int id, CancellationToken cancellationToken)
-        => ResponderAlteracao(await usuarios.RemoverAsync(id, cancellationToken));
+        => EhTitular(id) ? ResponderAlteracao(await usuarios.RemoverAsync(id, cancellationToken)) : Forbid();
+
+    private bool EhTitular(int id) => int.TryParse(User.Identity?.Name, out var idToken) && idToken == id;
 
     private ObjectResult UsuarioNaoEncontrado()
         => Problem(statusCode: StatusCodes.Status404NotFound, detail: "Usuário não encontrado.");
@@ -72,6 +94,7 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     {
         ResultadoAlteracaoUsuario.Sucesso => NoContent(),
         ResultadoAlteracaoUsuario.NaoEncontrado => UsuarioNaoEncontrado(),
+        ResultadoAlteracaoUsuario.PerfilInalteravel => Forbid(),
         ResultadoAlteracaoUsuario.EmailDuplicado => Problem(
             statusCode: StatusCodes.Status409Conflict, detail: "O e-mail já está cadastrado."),
         ResultadoAlteracaoUsuario.CpfDuplicado => Problem(

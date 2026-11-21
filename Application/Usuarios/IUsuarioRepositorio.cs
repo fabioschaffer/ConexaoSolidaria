@@ -6,6 +6,7 @@ public interface IUsuarioRepositorio
 {
     void Adicionar(Usuario usuario);
     Task<Usuario?> ObterAsync(int id, CancellationToken cancellationToken);
+    Task<Usuario?> ObterPorEmailAsync(string email, CancellationToken cancellationToken);
     Task<IReadOnlyList<UsuarioDto>> ListarAsync(CancellationToken cancellationToken);
     void Remover(Usuario usuario);
     Task<ResultadoAlteracaoUsuario> SalvarAsync(CancellationToken cancellationToken);
@@ -18,5 +19,6 @@ public enum ResultadoAlteracaoUsuario
     EmailDuplicado,
     CpfDuplicado,
     Conflito,
-    PossuiDoacoes
+    PossuiDoacoes,
+    PerfilInalteravel
 }

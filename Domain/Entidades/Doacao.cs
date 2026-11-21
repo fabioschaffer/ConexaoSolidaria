@@ -13,6 +13,7 @@ public sealed class Doacao
     public Guid DoadorId { get; private set; }
     public decimal Valor { get; private set; }
     public DateTimeOffset DataRecebimento { get; private set; }
+    public DateTimeOffset? DataProcessamento { get; private set; }
 
     public static Doacao Registrar(Campanha campanha, Usuario doador, decimal valor, DateTimeOffset dataRecebimento)
     {
@@ -42,5 +43,21 @@ public sealed class Doacao
             Valor = valor,
             DataRecebimento = dataRecebimento.ToUniversalTime()
         };
+    }
+
+    public void RegistrarProcessamento(DateTimeOffset dataProcessamento)
+    {
+        if (dataProcessamento < DataRecebimento)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(dataProcessamento), "A data de processamento não pode ser anterior à data de recebimento.");
+        }
+
+        if (DataProcessamento.HasValue && DataProcessamento.Value != dataProcessamento)
+        {
+            throw new InvalidOperationException("A doação já foi processada em outra data.");
+        }
+
+        DataProcessamento = dataProcessamento.ToUniversalTime();
     }
 }

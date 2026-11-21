@@ -1,6 +1,7 @@
 using Application.Campanhas;
 using Domain.Entidades;
 using Domain.Enums;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;

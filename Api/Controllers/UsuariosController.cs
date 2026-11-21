@@ -11,9 +11,6 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
-    [ProducesResponseType<UsuarioDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UsuarioDto>> Criar(
         CriarUsuarioDados dados, CancellationToken cancellationToken)
     {
@@ -42,8 +39,6 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
         => Ok(await usuarios.ListarAsync(cancellationToken));
 
     [HttpGet("{id:int}")]
-    [ProducesResponseType<UsuarioDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UsuarioDto>> Obter(int id, CancellationToken cancellationToken)
     {
         if (!EhTitular(id))
@@ -56,10 +51,6 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Atualizar(
         int id, AtualizarUsuarioDados dados, CancellationToken cancellationToken)
     {
@@ -79,9 +70,6 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Remover(int id, CancellationToken cancellationToken)
         => EhTitular(id) ? ResponderAlteracao(await usuarios.RemoverAsync(id, cancellationToken)) : Forbid();
 

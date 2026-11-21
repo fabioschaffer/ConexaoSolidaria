@@ -11,8 +11,6 @@ namespace Api.Controllers;
 public sealed class CampanhasController(CampanhaService campanhas) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType<CampanhaDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CampanhaDto>> Criar(
         CampanhaDados dados, CancellationToken cancellationToken)
     {
@@ -28,8 +26,6 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
     }
 
     [HttpGet("{id:int}")]
-    [ProducesResponseType<CampanhaDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CampanhaDto>> Obter(int id, CancellationToken cancellationToken)
     {
         var campanha = await campanhas.ObterAsync(id, cancellationToken);
@@ -37,8 +33,6 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
     }
 
     [HttpGet]
-    [ProducesResponseType<IReadOnlyList<CampanhaDto>>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyList<CampanhaDto>>> Listar(
         [FromQuery] StatusCampanha? status, CancellationToken cancellationToken)
     {
@@ -53,10 +47,6 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
     }
 
     [HttpPut("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Atualizar(
         int id, CampanhaDados dados, CancellationToken cancellationToken)
     {
@@ -75,9 +65,6 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
     }
 
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Cancelar(int id, CancellationToken cancellationToken)
         => ResponderAlteracao(await campanhas.CancelarAsync(id, cancellationToken));
 

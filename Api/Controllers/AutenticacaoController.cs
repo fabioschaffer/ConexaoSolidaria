@@ -13,8 +13,6 @@ public sealed class AutenticacaoController(UsuarioService usuarios, TokenJwt tok
     [AllowAnonymous]
     [HttpPost("login")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    [ProducesResponseType<RespostaToken>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<RespostaToken>> Login(LoginDados dados, CancellationToken cancellationToken)
     {
         var usuario = await usuarios.AutenticarAsync(dados.Email, dados.Senha, cancellationToken);

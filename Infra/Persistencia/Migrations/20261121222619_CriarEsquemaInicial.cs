@@ -112,7 +112,7 @@ namespace Infra.Persistencia.Migrations
                     "Campanha Escola Pública",
                     "Campanha Arrecadação Fundos para Escola Pública",
                     new DateTimeOffset(2026, 11, 1, 3, 0, 0, TimeSpan.Zero),
-                    new DateTimeOffset(2026, 12, 1, 3, 0, 0, TimeSpan.Zero),
+                    new DateTimeOffset(2027, 06, 1, 3, 0, 0, TimeSpan.Zero),
                     50_000m,
                     statusCampanhaAtiva
                 });

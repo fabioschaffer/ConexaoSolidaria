@@ -5,14 +5,13 @@
 
 
 ### Cadastrar doador
-POST {{Api_HostAddress}}/api/usuarios
+POST {{Api_HostAddress}}/api/doadores
 Content-Type: application/json
 
 {
   "nome": "Doador de teste",
   "email": "doador@example.com",
   "cpf": "12345678901",
-  "perfil": "Doador",
   "senha": "SenhaLocalDeTeste!123"
 }
 

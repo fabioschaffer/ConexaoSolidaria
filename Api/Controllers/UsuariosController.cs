@@ -6,20 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = nameof(PerfilUsuario.GestorONG))]
 [Route("api/usuarios")]
 public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
 {
     [HttpPost]
-    [AllowAnonymous]
     public async Task<ActionResult<UsuarioDto>> Criar(
         CriarUsuarioDados dados, CancellationToken cancellationToken)
     {
-        if (dados.Perfil != PerfilUsuario.Doador)
-        {
-            return Problem(statusCode: StatusCodes.Status400BadRequest,
-                detail: "O cadastro público está disponível para doadores.");
-        }
-
         try
         {
             var (resultado, usuario) = await usuarios.CriarAsync(dados, cancellationToken);
@@ -34,18 +28,12 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = nameof(PerfilUsuario.GestorONG))]
     public async Task<ActionResult<IReadOnlyList<UsuarioDto>>> Listar(CancellationToken cancellationToken)
         => Ok(await usuarios.ListarAsync(cancellationToken));
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<UsuarioDto>> Obter(int id, CancellationToken cancellationToken)
     {
-        if (!EhTitular(id))
-        {
-            return Forbid();
-        }
-
         var usuario = await usuarios.ObterAsync(id, cancellationToken);
         return usuario is null ? UsuarioNaoEncontrado() : Ok(usuario);
     }
@@ -54,11 +42,6 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
     public async Task<IActionResult> Atualizar(
         int id, AtualizarUsuarioDados dados, CancellationToken cancellationToken)
     {
-        if (!EhTitular(id))
-        {
-            return Forbid();
-        }
-
         try
         {
             return ResponderAlteracao(await usuarios.AtualizarAsync(id, dados, cancellationToken));
@@ -71,9 +54,7 @@ public sealed class UsuariosController(UsuarioService usuarios) : ControllerBase
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Remover(int id, CancellationToken cancellationToken)
-        => EhTitular(id) ? ResponderAlteracao(await usuarios.RemoverAsync(id, cancellationToken)) : Forbid();
-
-    private bool EhTitular(int id) => int.TryParse(User.Identity?.Name, out var idToken) && idToken == id;
+        => ResponderAlteracao(await usuarios.RemoverAsync(id, cancellationToken));
 
     private ObjectResult UsuarioNaoEncontrado()
         => Problem(statusCode: StatusCodes.Status404NotFound, detail: "Usuário não encontrado.");

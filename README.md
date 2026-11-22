@@ -18,11 +18,11 @@ Use [Api.http](Api/Api.http) para executar as requisições. O `DELETE` cancela 
 
 Configure `Jwt__Chave` na API com pelo menos 32 bytes aleatórios codificados em Base64. Mantenha a chave em um gerenciador de segredos no ambiente de implantação e sirva a API via HTTPS. Os parâmetros opcionais `Jwt__Emissor` e `Jwt__Audiencia` têm os valores padrão `ConexaoSolidaria` e `ConexaoSolidaria.Api`.
 
-1. Cadastre um doador em `POST /api/usuarios` ou use uma conta existente.
+1. Cadastre um doador em `POST /api/doadores` ou use uma conta existente.
 2. Envie `email` e `senha` a `POST /api/autenticacao/login`. A resposta contém `accessToken`, `tokenType` e `expiresIn` (28.800 segundos, ou 8 horas).
 3. Envie `Authorization: Bearer <accessToken>` nas rotas protegidas. No Swagger, use **Authorize** e cole o token.
 
-O cadastro público aceita somente o perfil `Doador`. A listagem de usuários exige o perfil `GestorONG`. A consulta por ID, a edição e a exclusão de conta são restritas ao titular. A edição de conta preserva o perfil existente. Os gestores já cadastrados podem usar a mesma rota de login.
+O cadastro público recebe nome, e-mail, CPF e senha e atribui o perfil `Doador` automaticamente. Todas as operações em `/api/usuarios` exigem um JWT com o perfil `GestorONG`. O gestor pode cadastrar, listar, consultar, editar e excluir usuários. A edição preserva o perfil existente.
 
 Todas as operações em `/api/campanhas` exigem um JWT com o perfil `GestorONG`. Para executar os exemplos de gestão em `Api.http`, informe as credenciais de um gestor existente na requisição de login. O endpoint público `GET /api/transparencia/campanhas` lista as campanhas ativas com título, meta financeira e o total das doações processadas.
 

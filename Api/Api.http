@@ -5,7 +5,7 @@
 
 
 ### Cadastrar doador
-POST {{Api_HostAddress}}/api/doadores
+POST {{Api_HostAddress}}/api/criar-usuario
 Content-Type: application/json
 
 {

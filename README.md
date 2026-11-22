@@ -18,7 +18,7 @@ Use [Api.http](Api/Api.http) para executar as requisições. O `DELETE` cancela 
 
 Configure `Jwt__Chave` na API com pelo menos 32 bytes aleatórios codificados em Base64. Mantenha a chave em um gerenciador de segredos no ambiente de implantação e sirva a API via HTTPS. Os parâmetros opcionais `Jwt__Emissor` e `Jwt__Audiencia` têm os valores padrão `ConexaoSolidaria` e `ConexaoSolidaria.Api`.
 
-1. Cadastre um doador em `POST /api/doadores` ou use uma conta existente.
+1. Cadastre um doador em `POST /api/criar-usuario` ou use uma conta existente.
 2. Envie `email` e `senha` a `POST /api/autenticacao/login`. A resposta contém `accessToken`, `tokenType` e `expiresIn` (28.800 segundos, ou 8 horas).
 3. Envie `Authorization: Bearer <accessToken>` nas rotas protegidas. No Swagger, use **Authorize** e cole o token.
 

@@ -39,9 +39,7 @@ public sealed class CampanhaRepositorio(ConexaoSolidariaContext contexto) : ICam
             .Select(c => new CampanhaTransparenciaDto(
                 c.Titulo,
                 c.MetaFinanceira,
-                contexto.Doacoes
-                    .Where(d => d.CampanhaId == c.Id && d.Status == StatusDoacao.Processada)
-                    .Sum(d => (decimal?)d.Valor) ?? 0m))
+                c.ValorTotalArrecadado))
             .ToListAsync(cancellationToken);
 
     public async Task<bool> TentarSalvarAlteracoesAsync(CancellationToken cancellationToken)

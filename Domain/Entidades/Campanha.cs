@@ -15,6 +15,7 @@ public sealed class Campanha
     public DateTimeOffset DataInicio { get; private set; }
     public DateTimeOffset DataFim { get; private set; }
     public decimal MetaFinanceira { get; private set; }
+    public decimal ValorTotalArrecadado { get; private set; }
     public StatusCampanha Status { get; private set; }
 
     public static Campanha Criar(

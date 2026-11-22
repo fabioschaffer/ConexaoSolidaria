@@ -21,6 +21,7 @@ public sealed class ConexaoSolidariaContext(DbContextOptions<ConexaoSolidariaCon
         campanha.Property(c => c.DataInicio).HasColumnType("timestamp with time zone");
         campanha.Property(c => c.DataFim).HasColumnType("timestamp with time zone");
         campanha.Property(c => c.MetaFinanceira).HasPrecision(31, 2);
+        campanha.Property(c => c.ValorTotalArrecadado).HasPrecision(31, 2);
         campanha.Property<uint>("xmin").IsRowVersion();
 
         var usuario = modelBuilder.Entity<Usuario>();

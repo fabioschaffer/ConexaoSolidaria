@@ -51,6 +51,10 @@ namespace Infra.Persistencia.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("ValorTotalArrecadado")
+                        .HasPrecision(31, 2)
+                        .HasColumnType("numeric(31,2)");
+
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()

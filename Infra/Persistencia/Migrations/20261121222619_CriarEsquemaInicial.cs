@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Infra.Seguranca;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -24,6 +24,7 @@ namespace Infra.Persistencia.Migrations
                     DataInicio = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     DataFim = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     MetaFinanceira = table.Column<decimal>(type: "numeric(31,2)", precision: 31, scale: 2, nullable: false),
+                    ValorTotalArrecadado = table.Column<decimal>(type: "numeric(31,2)", precision: 31, scale: 2, nullable: false, defaultValue: 0m),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
                 },

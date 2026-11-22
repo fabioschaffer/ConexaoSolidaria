@@ -11,8 +11,11 @@ public sealed class DoacaoRepositorio(ConexaoSolidariaContext contexto) : IDoaca
     {
         await using var transacao = await contexto.Database.BeginTransactionAsync(cancellationToken);
         var consulta = contexto.Doacoes.Where(d => d.Id == doacaoId);
+        var dataProcessamento = DateTimeOffset.UtcNow;
         var alteradas = await consulta.Where(d => d.Status == StatusDoacao.Recebida)
-            .ExecuteUpdateAsync(d => d.SetProperty(x => x.Status, StatusDoacao.Processada), cancellationToken);
+            .ExecuteUpdateAsync(d => d
+                .SetProperty(x => x.Status, StatusDoacao.Processada)
+                .SetProperty(x => x.DataProcessamento, dataProcessamento), cancellationToken);
 
         if (alteradas == 0)
         {

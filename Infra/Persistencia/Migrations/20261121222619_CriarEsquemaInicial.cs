@@ -1,4 +1,5 @@
 ﻿using System;
+using Infra.Seguranca;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -100,6 +101,19 @@ namespace Infra.Persistencia.Migrations
                 table: "Usuarios",
                 column: "Email",
                 unique: true);
+
+            const int perfilGestorOng = 2;
+            migrationBuilder.InsertData(
+                table: "Usuarios",
+                columns: new[] { "Nome", "Email", "Cpf", "Senha", "Perfil" },
+                values: new object[]
+                {
+                    "Administrador",
+                    "admin@admin.com",
+                    "00000000000",
+                    new HashSenha().Gerar("1234"),
+                    perfilGestorOng
+                });
         }
 
         /// <inheritdoc />

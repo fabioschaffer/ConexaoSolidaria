@@ -3,6 +3,7 @@ using Api.Seguranca;
 using Application.Campanhas;
 using Application.Doacoes;
 using Application.Usuarios;
+using Infra.Mensageria;
 using Infra.Seguranca;
 using Infra.Persistencia;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -63,6 +64,8 @@ builder.Services.AddDbContext<ConexaoSolidariaContext>(options => options.UseNpg
 builder.Services.AddScoped<ICampanhaRepositorio, CampanhaRepositorio>();
 builder.Services.AddScoped<CampanhaService>();
 builder.Services.AddScoped<IDoacaoRepositorio, DoacaoRepositorio>();
+builder.Services.AddOptions<RabbitMqOptions>().BindConfiguration("RabbitMq");
+builder.Services.AddSingleton<IDoacaoRecebidaPublicador, RabbitMqDoacaoRecebidaPublicador>();
 builder.Services.AddScoped<DoacaoService>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 builder.Services.AddScoped<IHashSenha, HashSenha>();

@@ -12,10 +12,12 @@ public enum ResultadoRegistroDoacao
     Recebida,
     DoadorInvalido,
     CampanhaNaoEncontrada,
-    CampanhaIndisponivel
+    CampanhaIndisponivel,
+    PublicacaoNaoConfirmada
 }
 
-public sealed class DoacaoService(IDoacaoRepositorio repositorio, TimeProvider relogio)
+public sealed class DoacaoService(
+    IDoacaoRepositorio repositorio, IDoacaoRecebidaPublicador publicador, TimeProvider relogio)
 {
     public async Task<(ResultadoRegistroDoacao Resultado, DoacaoRecebidaDto? Doacao)> RegistrarAsync(
         int doadorId, RegistrarDoacaoDados dados, CancellationToken cancellationToken)
@@ -40,7 +42,10 @@ public sealed class DoacaoService(IDoacaoRepositorio repositorio, TimeProvider r
 
         var doacao = Doacao.Registrar(campanha, doador, dados.ValorDoacao, agora);
         await repositorio.SalvarAsync(doacao, cancellationToken);
-        return (ResultadoRegistroDoacao.Recebida,
-            new DoacaoRecebidaDto(doacao.Id, doacao.CampanhaId, doacao.Valor, doacao.Status));
+        var evento = new DoacaoRecebidaEvent(doacao.Id, doacao.CampanhaId, doacao.Valor, doacao.DataRecebimento);
+        var publicada = await publicador.PublicarAsync(evento, cancellationToken);
+        var resposta = new DoacaoRecebidaDto(doacao.Id, doacao.CampanhaId, doacao.Valor, doacao.Status);
+        return (publicada ? ResultadoRegistroDoacao.Recebida : ResultadoRegistroDoacao.PublicacaoNaoConfirmada,
+            resposta);
     }
 }

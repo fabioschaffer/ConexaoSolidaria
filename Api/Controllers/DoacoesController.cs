@@ -30,6 +30,9 @@ public sealed class DoacoesController(DoacaoService doacoes) : ControllerBase
             return resultado switch
             {
                 ResultadoRegistroDoacao.Recebida => Accepted(doacao),
+                ResultadoRegistroDoacao.PublicacaoNaoConfirmada => Problem(
+                    statusCode: StatusCodes.Status503ServiceUnavailable,
+                    detail: $"A doação {doacao!.Id} foi registrada, mas a publicação não foi confirmada."),
                 ResultadoRegistroDoacao.DoadorInvalido => Forbid(),
                 ResultadoRegistroDoacao.CampanhaNaoEncontrada => Problem(
                     statusCode: StatusCodes.Status404NotFound, detail: "Campanha não encontrada."),

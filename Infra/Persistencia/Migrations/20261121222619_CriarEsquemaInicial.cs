@@ -103,6 +103,20 @@ namespace Infra.Persistencia.Migrations
                 column: "Email",
                 unique: true);
 
+            const int statusCampanhaAtiva = 1;
+            migrationBuilder.InsertData(
+                table: "Campanhas",
+                columns: new[] { "Titulo", "Descricao", "DataInicio", "DataFim", "MetaFinanceira", "Status" },
+                values: new object[]
+                {
+                    "Campanha Escola Pública",
+                    "Campanha Arrecadação Fundos para Escola Pública",
+                    new DateTimeOffset(2026, 11, 1, 3, 0, 0, TimeSpan.Zero),
+                    new DateTimeOffset(2026, 12, 1, 3, 0, 0, TimeSpan.Zero),
+                    50_000m,
+                    statusCampanhaAtiva
+                });
+
             const int perfilGestorOng = 2;
             migrationBuilder.InsertData(
                 table: "Usuarios",
@@ -114,6 +128,19 @@ namespace Infra.Persistencia.Migrations
                     "00000000000",
                     new HashSenha().Gerar("1234"),
                     perfilGestorOng
+                });
+
+            const int perfilDoador = 1;
+            migrationBuilder.InsertData(
+                table: "Usuarios",
+                columns: new[] { "Nome", "Email", "Cpf", "Senha", "Perfil" },
+                values: new object[]
+                {
+                    "João da Silva",
+                    "joao@email.com",
+                    "00000000001",
+                    new HashSenha().Gerar("1234"),
+                    perfilDoador
                 });
         }
 

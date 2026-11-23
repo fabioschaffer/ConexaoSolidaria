@@ -13,7 +13,7 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
 {
     [HttpPost]
     public async Task<ActionResult<CampanhaDto>> Criar(
-        CampanhaDados dados, CancellationToken cancellationToken)
+        CriarCampanhaDados dados, CancellationToken cancellationToken)
     {
         try
         {

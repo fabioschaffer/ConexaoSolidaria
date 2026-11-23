@@ -5,10 +5,10 @@ namespace Application.Campanhas;
 
 public sealed class CampanhaService(ICampanhaRepositorio repositorio, TimeProvider relogio)
 {
-    public async Task<CampanhaDto> CriarAsync(CampanhaDados dados, CancellationToken cancellationToken)
+    public async Task<CampanhaDto> CriarAsync(CriarCampanhaDados dados, CancellationToken cancellationToken)
     {
         var campanha = Campanha.Criar(dados.Titulo, dados.Descricao, dados.DataInicio,
-            dados.DataFim, dados.MetaFinanceira, dados.Status, relogio.GetUtcNow());
+            dados.DataFim, dados.MetaFinanceira, StatusCampanha.Ativa, relogio.GetUtcNow());
         await repositorio.AdicionarAsync(campanha, cancellationToken);
         return CampanhaDto.De(campanha);
     }

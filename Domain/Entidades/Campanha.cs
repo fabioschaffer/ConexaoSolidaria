@@ -27,6 +27,11 @@ public sealed class Campanha
             throw new ArgumentOutOfRangeException(nameof(dataFim), "A data de término não pode estar no passado.");
         }
 
+        if (dataInicio < agora)
+        {
+            throw new ArgumentOutOfRangeException(nameof(dataInicio), "A data de início não pode estar no passado.");
+        }
+
         status = StatusCampanha.Ativa;
 
         var campanha = new Campanha();

@@ -142,13 +142,13 @@ Ao criar o banco de dados, a migration inicial cadastra a **Campanha Escola Púb
 
 | Nome | Perfil | E-mail | Senha inicial |
 | --- | --- | --- | --- |
-| João da Silva | Doador (`1`) | `joao@email.com` | `1234` |
-| Administrador | GestorONG (`2`) | `admin@admin.com` | `1234` |
+| João da Silva | Doador | joao@email.com | 1234 |
+| Administrador | GestorONG | admin@admin.com | 1234 |
 
 ### Acesso aos serviços
 
 | Serviço | Endereço | Usuário | Senha |
 | --- | --- | --- | --- |
-| RabbitMQ | [localhost:15672](http://localhost:15672/) | `conexaosolidaria` | `conexaosolidaria-local` |
+| RabbitMQ | [localhost:15672](http://localhost:15672/) | conexaosolidaria | conexaosolidaria-local |
 | API | [localhost:5033/swagger](http://localhost:5033/swagger/index.html) | — | — |
-| Grafana | [127.0.0.1:3000](http://127.0.0.1:3000) | `admin` | `1234` |
+| Grafana | [127.0.0.1:3000](http://127.0.0.1:3000) | admin | 1234 |

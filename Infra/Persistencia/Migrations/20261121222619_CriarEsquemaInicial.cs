@@ -124,7 +124,7 @@ namespace Infra.Persistencia.Migrations
                 values: new object[]
                 {
                     "Administrador",
-                    "admin@admin.com",
+                    "admin@email.com",
                     "00000000000",
                     new HashSenha().Gerar("1234"),
                     perfilGestorOng

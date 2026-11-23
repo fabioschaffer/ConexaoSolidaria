@@ -72,4 +72,3 @@ flowchart TB
     Operador -->|"Acessa monitoramento"| ZabbixWeb
 ```
 
-O RabbitMQ usa o PVC `dados-rabbitmq-0`, montado em `/var/lib/rabbitmq`.

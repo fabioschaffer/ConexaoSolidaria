@@ -5,12 +5,16 @@ services:
       POSTGRES_DB: conexaosolidaria
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-conexaosolidaria-local}
+      ZABBIX_DB_PASSWORD: ${ZABBIX_DB_PASSWORD:-zabbix-local}
     ports:
       - '127.0.0.1:5432:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    configs:
+      - source: iniciar-postgres
+        target: /docker-entrypoint-initdb.d/10-zabbix.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d conexaosolidaria']
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U postgres -d conexaosolidaria']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -31,6 +35,61 @@ services:
       timeout: 5s
       retries: 10
 
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-7.0-latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: &zabbix-db
+      DB_SERVER_HOST: postgres
+      POSTGRES_DB: zabbix
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${ZABBIX_DB_PASSWORD:-zabbix-local}
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-7.0-latest
+    depends_on:
+      zabbix-server:
+        condition: service_started
+    environment:
+      <<: *zabbix-db
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: America/Sao_Paulo
+    ports:
+      - '127.0.0.1:8080:8080'
+
+  grafana:
+    image: grafana/grafana:12.3.0
+    environment:
+      GF_PLUGINS_PREINSTALL_SYNC: alexanderzobnin-zabbix-app@6.8.1
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-conexaosolidaria-local}
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  configurar-observabilidade:
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    depends_on:
+      zabbix-web:
+        condition: service_started
+      grafana:
+        condition: service_started
+    environment:
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-conexaosolidaria-local}
+    volumes:
+      - ./Observabilidade/Configurar.cs:/app/Configurar.cs:ro
+    command: ['dotnet', 'run', '--file', '/app/Configurar.cs']
+
+configs:
+  iniciar-postgres:
+    content: |
+      \set ON_ERROR_STOP on
+      \getenv password ZABBIX_DB_PASSWORD
+      CREATE ROLE zabbix LOGIN PASSWORD :'password';
+      CREATE DATABASE zabbix OWNER zabbix;
+
 volumes:
   postgres-data:
   rabbitmq-data:
+  grafana-data:

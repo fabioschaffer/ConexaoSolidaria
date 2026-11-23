@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Api.Observabilidade;
 using Api.Seguranca;
 using Application.Campanhas;
 using Application.Doacoes;
@@ -46,6 +47,7 @@ builder.Services.AddOpenApi(options =>
     });
 });
 builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
 
 var tokens = new TokenJwt(builder.Configuration, TimeProvider.System);
 builder.Services.AddSingleton(tokens);
@@ -74,6 +76,8 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 var app = builder.Build();
 
+app.MapMetricasHttp();
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
@@ -88,5 +92,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHealthChecks("/health").AllowAnonymous();
 app.MapControllers();
 app.Run();

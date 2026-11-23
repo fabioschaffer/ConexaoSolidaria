@@ -294,6 +294,12 @@ async Task ConfigurarFonteAsync(string uid, string banco, string nome, string se
 async Task ConfigurarDashboardAsync()
 {
     const string doacoesNoPeriodo = "grafana_conexao.processadas($__timeFrom(), $__timeTo())";
+    const string agrupamentoDoacoes = """
+        date_bin(
+            CASE WHEN $__timeTo()::timestamptz - $__timeFrom()::timestamptz > interval '2 days'
+                 THEN interval '1 day' ELSE interval '1 hour' END,
+            processada_em, timestamptz '2000-01-01 00:00:00-03')
+        """;
     const string amostrasApi = """
         WITH api AS (
             SELECT instante, dados, lag(dados) OVER (ORDER BY instante) AS anterior,
@@ -334,23 +340,17 @@ async Task ConfigurarDashboardAsync()
             FROM grafana_conexao.pendencias()
             """, campos: [Campo("Idade da mais antiga", "s")]),
         Painel(3, "Doações processadas", "timeseries", fonteAplicacao, 0, 8, 12, 8, $"""
-            SELECT extract(epoch FROM date_bin(
-                CASE WHEN $__timeTo()::timestamptz - $__timeFrom()::timestamptz > interval '2 days'
-                     THEN interval '1 day' ELSE interval '1 hour' END, processada_em,
-                timestamptz '2000-01-01 00:00:00-03'))::bigint AS time,
+            SELECT min(processada_em) AS time,
                 count(*) AS "Doações"
             FROM {doacoesNoPeriodo}
-            GROUP BY 1 ORDER BY 1
-            """),
+            GROUP BY {agrupamentoDoacoes} ORDER BY 1
+            """, exibirPontos: true),
         Painel(4, "Valor das doações processadas", "timeseries", fonteAplicacao, 12, 8, 12, 8, $"""
-            SELECT extract(epoch FROM date_bin(
-                CASE WHEN $__timeTo()::timestamptz - $__timeFrom()::timestamptz > interval '2 days'
-                     THEN interval '1 day' ELSE interval '1 hour' END, processada_em,
-                timestamptz '2000-01-01 00:00:00-03'))::bigint AS time,
+            SELECT min(processada_em) AS time,
                 sum(valor) AS "Valor"
             FROM {doacoesNoPeriodo}
-            GROUP BY 1 ORDER BY 1
-            """, unidade: "currencyBRL"),
+            GROUP BY {agrupamentoDoacoes} ORDER BY 1
+            """, unidade: "currencyBRL", exibirPontos: true),
         Painel(5, "Requisições HTTP", "timeseries", fonteZabbix, 0, 16, 16, 8,
             deltasApi + """
 
@@ -419,7 +419,8 @@ async Task ConfigurarDashboardAsync()
 }
 
 object Painel(int id, string titulo, string tipo, object fonte, int x, int y, int w, int h,
-    string sql, string unidade = "none", object[]? campos = null, string descricao = "") => new
+    string sql, string unidade = "none", object[]? campos = null, string descricao = "",
+    bool exibirPontos = false) => new
 {
     id,
     title = titulo,
@@ -427,7 +428,13 @@ object Painel(int id, string titulo, string tipo, object fonte, int x, int y, in
     type = tipo,
     datasource = fonte,
     gridPos = new { x, y, w, h },
-    fieldConfig = new { defaults = new { unit = unidade }, overrides = campos ?? [] },
+    fieldConfig = new
+    {
+        defaults = exibirPontos
+            ? (object)new { unit = unidade, custom = new { showPoints = "always" } }
+            : new { unit = unidade },
+        overrides = campos ?? []
+    },
     targets = new[]
     {
         new { refId = "A", datasource = fonte, rawQuery = true, rawSql = sql,

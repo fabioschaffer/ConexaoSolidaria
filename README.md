@@ -1,37 +1,12 @@
-migration do banco:
-é executada automaticamente ao iniciar a API
+## Resumo
 
-criar os containers e volumes docker:
-executar comando abaixo na pasta raíz do projeto
-docker compose up -d --wait
+O Conexão Solidária é uma plataforma para ONGs gerenciarem campanhas de arrecadação e para doadores acompanharem campanhas e registrarem doações. A API em .NET registra cada doação no PostgreSQL e publica uma mensagem no RabbitMQ. Um worker processa a mensagem de forma assíncrona e atualiza o valor total arrecadado da campanha.
 
-se precisar recriar:
-- excluir o grupo 'conexaosolidaria' dos containers.
-- excluir todos volumes com nome 'conexaosolidaria'
+A solução usa autenticação JWT com perfis de gestor de ONG e doador. Pode ser executada com Docker Compose ou Kubernetes e conta com Zabbix e Grafana para monitorar a API e acompanhar as doações.
 
-## Dados iniciais do banco
+## Arquitetura
 
-Ao criar o banco, a migration inicial cadastra a **Campanha Escola Pública**, com a descrição “Campanha Arrecadação Fundos para Escola Pública”. A campanha começa em 01/11/2026 e termina em 01/12/2026. Ela é criada com status **Ativa** (`1`), meta de R$ 50.000,00 e total arrecadado de R$ 0,00.
-
-A migration também cadastra usuarios:
-**João da Silva** com o perfil **Doador** (`1`), e-mail `joao@email.com`, senha `1234`
-
-**Administrador** perfil **GestorONG** (`2`), e-mail `admin@admin.com`, senha inicial `1234`
-
-rabbit-MQ:
-url: http://localhost:15672/
-Usuário: conexaosolidaria
-Senha: conexaosolidaria-local
-
-Api rodando em http://localhost:5033/swagger/index.html
-
-Grafana rodando em http://127.0.0.1:3000
-Usuário: admin
-Senha: 1234
-
-
-
-## Arquitetura do Conexão Solidária
+Segue abaixo desenho da arquitetura da solução.
 
 ```mermaid
 flowchart TB
@@ -72,3 +47,108 @@ flowchart TB
     Operador -->|"Acessa monitoramento"| ZabbixWeb
 ```
 
+## Bancos de Dados
+
+A solução utiliza uma única instância do PostgreSQL com dois bancos. O banco `conexaosolidaria` armazena usuários, campanhas e doações e é compartilhado pela API e pelo Worker. Assim, o Worker consegue marcar a doação como processada e atualizar o total arrecadado da campanha na mesma transação, mantendo os dois registros consistentes.
+
+O banco `zabbix` armazena as configurações e o histórico das métricas de monitoramento. A separação mantém os dados operacionais da aplicação independentes dos dados de monitoramento, enquanto o uso de uma única instância simplifica a implantação.
+
+Migration do Banco: A API executa a migration automaticamente durante a inicialização.
+
+## Executando a aplicação via Docker
+
+Abra um terminal na raiz do projeto e execute o comando abaixo.
+
+```bash
+docker compose up -d --wait
+```
+
+O Docker Compose cria os contêineres e volumes definidos no `compose.yaml`, inicia os serviços em segundo plano e aguarda até que estejam em execução. Para os serviços com verificação de saúde configurada, o comando também aguarda até que estejam saudáveis.
+
+### Recriar o ambiente Docker
+
+Se precisar recriar o ambiente do zero, siga os passos abaixo no Docker Desktop.
+
+1. Na seção **Containers**, exclua o grupo `conexaosolidaria`.
+2. Na seção **Volumes**, exclua todos os volumes cujo nome começa com `conexaosolidaria`.
+3. Na raiz do projeto, execute `docker compose up -d --wait` para recriar o ambiente.
+
+## Executando a solução via Kubernetes
+
+### Implantação
+
+1. Habilite o Kubernetes no Docker Desktop.
+
+2. Crie as imagens da API e do Worker
+
+```powershell
+docker build -f Api/Dockerfile -t conexaosolidaria-api:local .
+docker build -f Worker/Dockerfile -t conexaosolidaria-worker:local .
+```
+
+3. Execute o comando abaixo para criar os recursos no cluster Kubernetes.
+
+```powershell
+kubectl --context docker-desktop apply -k k8s
+```
+
+### Acessando os Serviços
+
+Execute cada port-forward em um terminal e mantenha-o aberto enquanto usar a interface.
+
+| Interface | Comando | Endereço |
+| --- | --- | --- |
+| API (Swagger) | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/api 8080:8080` | http://localhost:8080/swagger |
+| Grafana | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/grafana 3000:3000` | http://localhost:3000 |
+| Zabbix | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/zabbix-web 8081:8080` | http://localhost:8081 |
+| RabbitMQ | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/rabbitmq 15672:15672` | http://localhost:15672 |
+
+## Testes
+
+Para visualizar a mensagem da doação no Rabbit-MQ, pause o worker via comando abaixo. Depois reinicie ele.
+
+Pausar o worker:
+```powershell
+kubectl --context docker-desktop -n conexaosolidaria scale deployment/worker --replicas=0
+```
+
+Reiniciar o worker:
+```powershell
+kubectl --context docker-desktop -n conexaosolidaria scale deployment/worker --replicas=1
+```
+
+### Recriar Kubernetes
+
+Caso a solução já tenha sido criada no Kubernetes, e deseja-se excluir todo o namespace, execute o comando abaixo.
+
+```powershell
+kubectl --context docker-desktop delete namespace conexaosolidaria
+```
+
+## Dados Iniciais
+
+Ao criar o banco de dados, a migration inicial cadastra a **Campanha Escola Pública** com os seguintes dados.
+
+| Campo | Valor |
+| --- | --- |
+| Descrição | Campanha Arrecadação Fundos para Escola Pública |
+| Data de início | 01/11/2026 |
+| Data de término | 01/12/2026 |
+| Status | Ativa (`1`) |
+| Meta financeira | R$ 50.000,00 |
+| Total arrecadado inicial | R$ 0,00 |
+
+### Usuários iniciais
+
+| Nome | Perfil | E-mail | Senha inicial |
+| --- | --- | --- | --- |
+| João da Silva | Doador (`1`) | `joao@email.com` | `1234` |
+| Administrador | GestorONG (`2`) | `admin@admin.com` | `1234` |
+
+### Acesso aos serviços
+
+| Serviço | Endereço | Usuário | Senha |
+| --- | --- | --- | --- |
+| RabbitMQ | [localhost:15672](http://localhost:15672/) | `conexaosolidaria` | `conexaosolidaria-local` |
+| API | [localhost:5033/swagger](http://localhost:5033/swagger/index.html) | — | — |
+| Grafana | [127.0.0.1:3000](http://127.0.0.1:3000) | `admin` | `1234` |

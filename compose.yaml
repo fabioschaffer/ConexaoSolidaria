@@ -61,7 +61,7 @@ services:
   grafana:
     image: grafana/grafana:12.3.0
     environment:
-      GF_PLUGINS_PREINSTALL_SYNC: alexanderzobnin-zabbix-app@6.8.1
+      GF_PLUGINS_PREINSTALL_SYNC: alexanderzobnin-zabbix-app@6.10.2
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-conexaosolidaria-local}
     ports:
       - '127.0.0.1:3000:3000'

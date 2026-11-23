@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      initContainers:
+        - name: aguardar-api
+          image: busybox:1.37
+          command: [sh, -c, 'until wget -q -T 5 -O /dev/null http://api:8080/health; do sleep 3; done']
+        - name: aguardar-rabbitmq
+          image: busybox:1.37
+          command: [sh, -c, 'until wget -q -T 5 -O /dev/null http://rabbitmq:15672/; do sleep 3; done']
+      containers:
+        - name: worker
+          image: conexaosolidaria-worker:local
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: conexaosolidaria
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: conexaosolidaria
+                  key: postgres-password
+            - name: RabbitMq__Password
+              valueFrom:
+                secretKeyRef:
+                  name: conexaosolidaria
+                  key: rabbitmq-password
+            - name: ConnectionStrings__ConexaoSolidaria
+              value: Host=postgres;Port=5432;Database=$(POSTGRES_DB);Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD)

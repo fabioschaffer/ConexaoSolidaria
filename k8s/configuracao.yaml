@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: conexaosolidaria
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conexaosolidaria
+data:
+  POSTGRES_DB: conexaosolidaria
+  POSTGRES_USER: postgres
+  RabbitMq__HostName: rabbitmq
+  RabbitMq__Port: "5672"
+  RabbitMq__UserName: admin
+  RabbitMq__FilaDoacoesRecebidas: doacoes.recebidas
+  API_METRICS_URL: http://api:8080/metrics

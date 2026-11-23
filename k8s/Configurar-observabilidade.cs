@@ -76,7 +76,8 @@ async Task ConfigurarZabbixAsync(string admin)
             value_type = 4, // Texto
             delay = "15s",
             history = "7d",
-            url = "http://host.docker.internal:5033/metrics",
+            url = Environment.GetEnvironmentVariable("API_METRICS_URL")
+                ?? "http://host.docker.internal:5033/metrics",
             status_codes = "200"
         });
 

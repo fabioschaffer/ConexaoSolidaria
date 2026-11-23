@@ -61,8 +61,7 @@ services:
   grafana:
     image: grafana/grafana:12.3.0
     environment:
-      GF_PLUGINS_PREINSTALL_SYNC: alexanderzobnin-zabbix-app@6.10.2
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-conexaosolidaria-local}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-1234}
     ports:
       - '127.0.0.1:3000:3000'
     volumes:
@@ -75,8 +74,15 @@ services:
         condition: service_started
       grafana:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     environment:
-      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-conexaosolidaria-local}
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-1234}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-conexaosolidaria-local}
+      RABBITMQ_USER: ${RABBITMQ_USER:-conexaosolidaria}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-conexaosolidaria-local}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE:-doacoes.recebidas}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
     volumes:
       - ./Observabilidade/Configurar.cs:/app/Configurar.cs:ro
     command: ['dotnet', 'run', '--file', '/app/Configurar.cs']

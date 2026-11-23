@@ -82,6 +82,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     await context.Database.MigrateAsync();
 }
 
+app.UseRouting();
 app.MapMetricasHttp();
 
 app.UseExceptionHandler();

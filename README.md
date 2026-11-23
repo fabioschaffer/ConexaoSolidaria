@@ -1,10 +1,14 @@
-migration:
-executar comando abaixo na pasta raíz do projeto:
- dotnet ef database update --project Infra --startup-project Api
+migration do banco:
+é executada automaticamente ao iniciar a API
 
-criar os containers docker:
+criar os containers e volumes docker:
 executar comando abaixo na pasta raíz do projeto
 docker compose up -d --wait
+
+se precisar recriar:
+- excluir o grupo 'conexaosolidaria' dos containers.
+- excluir todos volumes com nome 'conexaosolidaria'
+
 
 ## Dados iniciais do banco
 
@@ -23,5 +27,4 @@ Api rodando em http://localhost:5033/swagger/index.html
 
 Grafana rodando em http://127.0.0.1:3000
 Usuário: admin
-Senha: conexaosolidaria-local
-
+Senha: 1234

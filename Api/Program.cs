@@ -76,6 +76,12 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 var app = builder.Build();
 
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ConexaoSolidariaContext>();
+    await context.Database.MigrateAsync();
+}
+
 app.MapMetricasHttp();
 
 app.UseExceptionHandler();

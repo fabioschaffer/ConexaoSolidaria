@@ -18,3 +18,10 @@ rabbit-MQ:
 url: http://localhost:15672/
 Usuário: conexaosolidaria
 Senha: conexaosolidaria-local
+
+Api rodando em http://localhost:5033/swagger/index.html
+
+Grafana rodando em http://127.0.0.1:3000
+Usuário: admin
+Senha: conexaosolidaria-local
+

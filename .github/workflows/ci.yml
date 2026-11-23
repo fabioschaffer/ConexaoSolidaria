@@ -1,0 +1,37 @@
+name: Build e imagens Docker
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v5
+
+      - name: Configurar .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Compilar solução
+        run: dotnet build ConexaoSolidaria.slnx --configuration Release
+
+      - name: Gerar imagens Docker
+        run: |
+          docker build --file Api/Dockerfile --tag "conexaosolidaria-api:${GITHUB_SHA}" .
+          docker build --file Worker/Dockerfile --tag "conexaosolidaria-worker:${GITHUB_SHA}" .
+          docker save --output conexaosolidaria-images.tar "conexaosolidaria-api:${GITHUB_SHA}" "conexaosolidaria-worker:${GITHUB_SHA}"
+
+      - name: Disponibilizar imagens
+        uses: actions/upload-artifact@v4
+        with:
+          name: conexaosolidaria-images-${{ github.sha }}
+          path: conexaosolidaria-images.tar
+          if-no-files-found: error

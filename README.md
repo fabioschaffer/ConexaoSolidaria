@@ -13,7 +13,7 @@ flowchart TB
     Cliente["Usuário (Gestor da ONG ou Doador)"]
     Operador["Operador de TI"]
 
-    subgraph K8s["Kubernetes · namespace conexao-solidaria"]
+    subgraph K8s["Kubernetes (Namespace conexao-solidaria)"]
         API["API"]
         Rabbit["RabbitMQ · fila doacoes.recebidas"]
         Worker["Worker - Processar-Doacao"]
@@ -34,8 +34,7 @@ flowchart TB
         Rabbit -->|"Persiste no volume"| RabbitDisk
         Worker -->|"Atualiza status, data de processamento e total arrecadado"| AppDB
 
-        Zabbix -->|"Consulta /metrics"| API
-        Zabbix -->|"Consulta métricas da fila pela API de gerenciamento"| Rabbit
+        Zabbix -->|"Consulta Métricas"| API
         Zabbix -->|"Grava histórico de métricas"| ZabbixDB
         ZabbixWeb -->|"Consulta dados de monitoramento"| ZabbixDB
         Grafana -->|"Consulta histórico de métricas"| ZabbixDB

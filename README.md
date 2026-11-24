@@ -103,18 +103,36 @@ kubectl --context docker-desktop apply -k k8s
 
 ### Acessando os Serviços
 
-Execute cada port-forward em um terminal e mantenha-o aberto enquanto usar a interface.
+Execute cada port-forward em um terminal separado e mantenha-o aberto enquanto usar a interface.
 
-| Interface | Comando | Endereço |
-| --- | --- | --- |
-| API |
+**API**
 ```powershell
 kubectl --context docker-desktop -n conexaosolidaria port-forward svc/api 8080:8080
 ```
-| http://localhost:8080/swagger |
-| Grafana | ```powershell kubectl --context docker-desktop -n conexaosolidaria port-forward svc/grafana 3000:3000``` | http://localhost:3000 |
-| Zabbix | ```powershell kubectl --context docker-desktop -n conexaosolidaria port-forward svc/zabbix-web 8081:8080``` | http://localhost:8081 |
-| RabbitMQ | ```powershell kubectl --context docker-desktop -n conexaosolidaria port-forward svc/rabbitmq 15672:15672``` | http://localhost:15672 |
+
+**Grafana**
+```powershell
+kubectl --context docker-desktop -n conexaosolidaria port-forward svc/grafana 3000:3000
+```
+
+**Zabbix**
+```powershell
+kubectl --context docker-desktop -n conexaosolidaria port-forward svc/zabbix-web 8081:8080
+```
+
+**RabbitMQ**
+```powershell
+kubectl --context docker-desktop -n conexaosolidaria port-forward svc/rabbitmq 15672:15672
+```
+
+#### Endereços de acesso
+
+| Interface | Endereço |
+| --- | --- |
+| API | http://localhost:8080/swagger |
+| Grafana | http://localhost:3000 |
+| Zabbix | http://localhost:8081 |
+| RabbitMQ | http://localhost:15672 |
 
 ## Testes
 

@@ -63,6 +63,14 @@ docker compose up -d --wait
 
 O Docker Compose cria os contêineres e volumes definidos no `docker-compose.yaml`, inicia os serviços em segundo plano e aguarda até que estejam em execução. Para os serviços com verificação de saúde configurada, o comando também aguarda até que estejam saudáveis.
 
+### Acesso aos serviços
+
+| Serviço | Endereço | Usuário | Senha |
+| --- | --- | --- | --- |
+| RabbitMQ | [localhost:15672](http://localhost:15672/) | conexaosolidaria | conexaosolidaria-local |
+| API | [localhost:5033/swagger](http://localhost:5033/swagger/index.html) | — | — |
+| Grafana | [127.0.0.1:3000](http://127.0.0.1:3000) | admin | 1234 |
+
 ### Recriar o ambiente Docker
 
 Se precisar recriar o ambiente do zero, siga os passos abaixo no Docker Desktop.
@@ -77,10 +85,13 @@ Se precisar recriar o ambiente do zero, siga os passos abaixo no Docker Desktop.
 
 1. Habilite o Kubernetes no Docker Desktop.
 
-2. Crie as imagens da API e do Worker
+2. Crie as imagens da API e do Worker executando os comandos abaixo.
 
 ```powershell
 docker build -f Api/Dockerfile -t conexaosolidaria-api:local .
+```
+
+```powershell
 docker build -f Worker/Dockerfile -t conexaosolidaria-worker:local .
 ```
 
@@ -142,11 +153,3 @@ Ao criar o banco de dados, a migration inicial cadastra a **Campanha Escola Púb
 | --- | --- | --- | --- |
 | João da Silva | Doador | joao@email.com | 1234 |
 | Administrador | GestorONG | admin@admin.com | 1234 |
-
-### Acesso aos serviços
-
-| Serviço | Endereço | Usuário | Senha |
-| --- | --- | --- | --- |
-| RabbitMQ | [localhost:15672](http://localhost:15672/) | conexaosolidaria | conexaosolidaria-local |
-| API | [localhost:5033/swagger](http://localhost:5033/swagger/index.html) | — | — |
-| Grafana | [127.0.0.1:3000](http://127.0.0.1:3000) | admin | 1234 |

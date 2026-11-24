@@ -138,6 +138,8 @@ kubectl --context docker-desktop delete namespace conexaosolidaria
 
 Ao iniciar a API, ela executa automaticamente a migration do banco e cria os seguintes dados iniciais.
 
+### Campanha
+
 | Campo | Valor |
 | --- | --- |
 | Descrição | Campanha Arrecadação Fundos para Escola Pública |
@@ -149,7 +151,7 @@ Ao iniciar a API, ela executa automaticamente a migration do banco e cria os seg
 
 ### Usuários iniciais
 
-| Nome | Perfil | E-mail | Senha inicial |
+| Nome | Perfil | E-mail | Senha |
 | --- | --- | --- | --- |
 | João da Silva | Doador | joao@email.com | 1234 |
 | Administrador | GestorONG | admin@admin.com | 1234 |

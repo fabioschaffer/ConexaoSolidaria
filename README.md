@@ -55,13 +55,13 @@ Migration do Banco: A API executa a migration automaticamente durante a iniciali
 
 ## Executando a aplicação via Docker
 
+O Docker Compose cria os contêineres e volumes definidos no `docker-compose.yaml`, inicia os serviços em segundo plano e aguarda até que estejam em execução.
+
 Abra um terminal na raiz do projeto e execute o comando abaixo.
 
 ```bash
 docker compose up -d --wait
 ```
-
-O Docker Compose cria os contêineres e volumes definidos no `docker-compose.yaml`, inicia os serviços em segundo plano e aguarda até que estejam em execução. Para os serviços com verificação de saúde configurada, o comando também aguarda até que estejam saudáveis.
 
 ### Acesso aos serviços
 

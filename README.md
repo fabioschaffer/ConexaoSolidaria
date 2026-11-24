@@ -142,10 +142,11 @@ Ao iniciar a API, ela executa automaticamente a migration do banco e cria os seg
 
 | Campo | Valor |
 | --- | --- |
+| Título | Campanha Escola Pública |
 | Descrição | Campanha Arrecadação Fundos para Escola Pública |
 | Data de início | 01/11/2026 |
-| Data de término | 01/12/2026 |
-| Status | Ativa (`1`) |
+| Data de término | 01/06/2027 |
+| Status | Ativa |
 | Meta financeira | R$ 50.000,00 |
 | Total arrecadado inicial | R$ 0,00 |
 

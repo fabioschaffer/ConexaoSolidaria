@@ -10,14 +10,14 @@ Segue abaixo desenho da arquitetura da solução.
 
 ```mermaid
 flowchart TB
-    Cliente["Doador ou gestor da ONG"]
-    Operador["Operador do ambiente"]
+    Cliente["Doador ou Gestor da ONG"]
+    Operador["Operador de TI"]
 
-    subgraph K8s["Kubernetes · namespace conexaosolidaria"]
-        API["API REST · ASP.NET Core"]
+    subgraph K8s["Kubernetes · namespace conexao-solidaria"]
+        API["API"]
         Rabbit["RabbitMQ · fila doacoes.recebidas"]
-        Worker["Worker .NET · ProcessarDoacao"]
-        RabbitDisk[("Volume persistente do RabbitMQ · 1 GiB")]
+        Worker["Worker - Processar-Doacao"]
+        RabbitDisk[("Volume Rabbit-MQ")]
 
         subgraph PG["Instância PostgreSQL"]
             AppDB[("Banco da aplicação")]
@@ -31,7 +31,7 @@ flowchart TB
         API -->|"Salva doação pendente"| AppDB
         API -->|"Publica evento de doação recebida"| Rabbit
         Rabbit -->|"Entrega mensagem"| Worker
-        Rabbit -->|"Persiste filas e mensagens em /var/lib/rabbitmq"| RabbitDisk
+        Rabbit -->|"Persiste no volume"| RabbitDisk
         Worker -->|"Atualiza status, data de processamento e total arrecadado"| AppDB
 
         Zabbix -->|"Consulta /metrics"| API
@@ -41,7 +41,7 @@ flowchart TB
         Grafana -->|"Consulta histórico de métricas"| ZabbixDB
     end
 
-    Cliente -->|"HTTP · JWT nas rotas protegidas"| API
+    Cliente -->|"Requisições · JWT nas rotas protegidas"| API
     Operador -->|"Acessa painéis"| Grafana
     Operador -->|"Acessa monitoramento"| ZabbixWeb
 ```

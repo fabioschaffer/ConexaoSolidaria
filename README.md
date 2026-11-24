@@ -10,13 +10,13 @@ Segue abaixo desenho da arquitetura da solução.
 
 ```mermaid
 flowchart TB
-    Cliente["Usuário (Gestor da ONG ou Doador)"]
+    Cliente["Usuário"]
     Operador["Operador de TI"]
 
     subgraph K8s["Kubernetes (Namespace conexao-solidaria)"]
         API["API"]
-        Rabbit["RabbitMQ · fila doacoes.recebidas"]
-        Worker["Worker - Processar-Doacao"]
+        Rabbit["Rabbit-MQ"]
+        Worker["Worker (Processar-Doacao)"]
         RabbitDisk[("Volume Rabbit-MQ")]
 
         subgraph PG["Instância PostgreSQL"]
@@ -28,9 +28,9 @@ flowchart TB
         ZabbixWeb["Zabbix Web"]
         Grafana["Grafana"]
 
-        API -->|"Salva doação pendente"| AppDB
-        API -->|"Publica evento de doação recebida"| Rabbit
-        Rabbit -->|"Entrega mensagem"| Worker
+        API -->|"Persiste no Banco"| AppDB
+        API -->|"Producer (Doação recebida)"| Rabbit
+        Rabbit -->|"Consumer"| Worker
         Rabbit -->|"Persiste no volume"| RabbitDisk
         Worker -->|"Atualiza status, data de processamento e total arrecadado"| AppDB
 

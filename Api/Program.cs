@@ -102,3 +102,5 @@ app.UseAuthorization();
 app.MapHealthChecks("/health").AllowAnonymous();
 app.MapControllers();
 app.Run();
+
+// demonstracao ci

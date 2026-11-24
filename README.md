@@ -13,14 +13,14 @@ flowchart TB
     Cliente["Usuário"]
     Operador["Operador de TI"]
 
-    subgraph K8s["Kubernetes (Namespace conexao-solidaria)"]
+    subgraph K8s["Kubernetes (Namespace Conexao-Solidaria)"]
         API["API"]
         Rabbit["Rabbit-MQ"]
-        Worker["Worker (Processar-Doacao)"]
-        RabbitDisk[("Volume Rabbit-MQ")]
+        Worker["Worker"]
+        RabbitDisk[("Volume (Rabbit-MQ)")]
 
-        subgraph PG["Instância PostgreSQL"]
-            AppDB[("Banco da aplicação")]
+        subgraph PG["Instâncias PostgreSQL"]
+            AppDB[("Banco da Aplicação")]
             ZabbixDB[("Banco zabbix")]
         end
 
@@ -29,20 +29,20 @@ flowchart TB
         Grafana["Grafana"]
 
         API -->|"Persiste no Banco"| AppDB
-        API -->|"Producer (Doação recebida)"| Rabbit
-        Rabbit -->|"Consumer"| Worker
-        Rabbit -->|"Persiste no volume"| RabbitDisk
-        Worker -->|"Atualiza status, data de processamento e total arrecadado"| AppDB
+        API -->|"Producer (Doação Recebida)"| Rabbit
+        Rabbit -->|"Consumer (Processa Doação)"| Worker
+        Rabbit -->|"Persiste no Volume"| RabbitDisk
+        Worker -->|"Atualiza status, Data Processamento e Total Arrecadado"| AppDB
 
         Zabbix -->|"Consulta Métricas"| API
-        Zabbix -->|"Grava histórico de métricas"| ZabbixDB
-        ZabbixWeb -->|"Consulta dados de monitoramento"| ZabbixDB
-        Grafana -->|"Consulta histórico de métricas"| ZabbixDB
+        Zabbix -->|"Grava Histórico de Métricas"| ZabbixDB
+        ZabbixWeb -->|"Consulta Dados de Monitoramento"| ZabbixDB
+        Grafana -->|"Consulta Histórico de Métricas"| ZabbixDB
     end
 
     Cliente -->|"Requisições"| API
-    Operador -->|"Acessa painéis"| Grafana
-    Operador -->|"Acessa monitoramento"| ZabbixWeb
+    Operador -->|"Acessa Painéis"| Grafana
+    Operador -->|"Acessa Monitoramento"| ZabbixWeb
 ```
 
 ## Bancos de Dados

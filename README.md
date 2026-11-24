@@ -10,7 +10,7 @@ Segue abaixo desenho da arquitetura da solução.
 
 ```mermaid
 flowchart TB
-    Cliente["Usuário Doador ou Gestor da ONG"]
+    Cliente["Usuário (Gestor da ONG ou Doador)"]
     Operador["Operador de TI"]
 
     subgraph K8s["Kubernetes · namespace conexao-solidaria"]

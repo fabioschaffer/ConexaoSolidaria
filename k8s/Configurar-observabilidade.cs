@@ -143,9 +143,8 @@ async Task ConfigurarZabbixAsync(string admin)
                     @params = """
                         var fila = JSON.parse(value);
                         return JSON.stringify({
-                            prontas: fila.messages_ready,
-                            semConfirmacao: fila.messages_unacknowledged,
-                            consumidores: fila.consumers
+                            totalNaFila: fila.messages,
+                            processadas: fila.message_stats ? (fila.message_stats.ack || 0) : 0
                         });
                         """,
                     error_handler = 0,
@@ -348,29 +347,21 @@ async Task ConfigurarDashboardAsync()
             SELECT instante AS time, requisicoes AS "Requisições"
             FROM deltas ORDER BY 1
             """, descricao: "Quantidade de requisições HTTP entre as coletas do Zabbix."),
-        Painel(7, "Fila Rabbit-MQ", "timeseries", fonteZabbix, 0, 8, 24, 8, """
-            SELECT instante AS time, (dados->>'prontas')::int AS "Mensagens prontas",
-                   (dados->>'semConfirmacao')::int AS "Aguardando confirmação",
-                   (dados->>'consumidores')::int AS "Consumidores"
-            FROM grafana_conexao.amostras
-            WHERE metrica = 'rabbitmq.doacoes' AND $__unixEpochFilter(segundo)
-            ORDER BY 1
-            """),
     };
 
-    var linhaErros = 16;
+    var linhaErros = 8;
     if (!string.IsNullOrWhiteSpace(prometheusUrl))
     {
         var filtroNamespace = $$"""{namespace="{{namespaceMetricas}}"}""";
         paineis.AddRange([
-            PainelPrometheus(10, "Consumo CPU Pods", 0, 16, 12,
+            PainelPrometheus(10, "Consumo CPU Pods", 0, 8, 12,
                 $"1000 * sum by (pod) (rate(pod_cpu_usage_seconds_total{filtroNamespace}[$__rate_interval]))",
                 "{{pod}}", "suffix: mCPU", "Uso de CPU por pod em milinúcleos."),
-            PainelPrometheus(11, "Consumo Memória Pods", 12, 16, 12,
+            PainelPrometheus(11, "Consumo Memória Pods", 12, 8, 12,
                 $"sum by (pod) (pod_memory_working_set_bytes{filtroNamespace})",
                 "{{pod}}", "bytes", "Memória em uso (working set) por pod.")
         ]);
-        linhaErros = 24;
+        linhaErros = 16;
     }
 
     paineis.AddRange([

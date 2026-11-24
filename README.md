@@ -63,7 +63,7 @@ Abra um terminal na raiz do projeto e execute o comando abaixo.
 docker compose up -d --wait
 ```
 
-O Docker Compose cria os contêineres e volumes definidos no `compose.yaml`, inicia os serviços em segundo plano e aguarda até que estejam em execução. Para os serviços com verificação de saúde configurada, o comando também aguarda até que estejam saudáveis.
+O Docker Compose cria os contêineres e volumes definidos no `docker-compose.yaml`, inicia os serviços em segundo plano e aguarda até que estejam em execução. Para os serviços com verificação de saúde configurada, o comando também aguarda até que estejam saudáveis.
 
 ### Recriar o ambiente Docker
 

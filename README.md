@@ -136,7 +136,7 @@ kubectl --context docker-desktop delete namespace conexaosolidaria
 
 ## Dados Iniciais
 
-Ao criar o banco de dados, a migration inicial cadastra a **Campanha Escola Pública** com os seguintes dados.
+Ao iniciar a API, ela executa automaticamente a migration do banco e cria os seguintes dados iniciais.
 
 | Campo | Valor |
 | --- | --- |

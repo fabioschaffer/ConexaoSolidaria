@@ -10,7 +10,7 @@ Segue abaixo desenho da arquitetura da solução.
 
 ```mermaid
 flowchart TB
-    Cliente["Doador ou Gestor da ONG"]
+    Cliente["Usuário Doador ou Gestor da ONG"]
     Operador["Operador de TI"]
 
     subgraph K8s["Kubernetes · namespace conexao-solidaria"]
@@ -41,7 +41,7 @@ flowchart TB
         Grafana -->|"Consulta histórico de métricas"| ZabbixDB
     end
 
-    Cliente -->|"Requisições · JWT nas rotas protegidas"| API
+    Cliente -->|"Requisições"| API
     Operador -->|"Acessa painéis"| Grafana
     Operador -->|"Acessa monitoramento"| ZabbixWeb
 ```

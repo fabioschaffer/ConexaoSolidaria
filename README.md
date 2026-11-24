@@ -21,7 +21,7 @@ flowchart TB
 
         subgraph PG["Instâncias PostgreSQL"]
             AppDB[("Banco da Aplicação")]
-            ZabbixDB[("Banco zabbix")]
+            ZabbixDB[("Banco Zabbix")]
         end
 
         Zabbix["Zabbix Server"]
@@ -32,7 +32,7 @@ flowchart TB
         API -->|"Producer (Doação Recebida)"| Rabbit
         Rabbit -->|"Consumer (Processa Doação)"| Worker
         Rabbit -->|"Persiste no Volume"| RabbitDisk
-        Worker -->|"Atualiza status, Data Processamento e Total Arrecadado"| AppDB
+        Worker -->|"Atualiza Status, Data Processamento e Total Arrecadado"| AppDB
 
         Zabbix -->|"Consulta Métricas"| API
         Zabbix -->|"Grava Histórico de Métricas"| ZabbixDB

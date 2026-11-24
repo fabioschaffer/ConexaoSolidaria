@@ -20,20 +20,15 @@ public sealed class CampanhaService(ICampanhaRepositorio repositorio, TimeProvid
     }
 
     public async Task<IReadOnlyList<CampanhaDto>> ListarAsync(
-        StatusCampanha? status, CancellationToken cancellationToken)
+        int? id, CancellationToken cancellationToken)
     {
-        if (status.HasValue && !Enum.IsDefined(status.Value))
-        {
-            throw new ArgumentOutOfRangeException(nameof(status), "Status de campanha inválido.");
-        }
-
-        var campanhas = await repositorio.ListarAsync(status, cancellationToken);
+        var campanhas = await repositorio.ListarAsync(id, cancellationToken);
         return campanhas.Select(CampanhaDto.De).ToArray();
     }
 
     public Task<IReadOnlyList<CampanhaTransparenciaDto>> ListarParaTransparenciaAsync(
-        CancellationToken cancellationToken)
-        => repositorio.ListarParaTransparenciaAsync(cancellationToken);
+        int? id, CancellationToken cancellationToken)
+        => repositorio.ListarParaTransparenciaAsync(id, cancellationToken);
 
     public async Task<ResultadoAlteracaoCampanha> AtualizarAsync(
         int id, CampanhaDados dados, CancellationToken cancellationToken)

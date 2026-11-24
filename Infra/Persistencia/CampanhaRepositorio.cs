@@ -17,12 +17,12 @@ public sealed class CampanhaRepositorio(ConexaoSolidariaContext contexto) : ICam
         => contexto.Campanhas.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Campanha>> ListarAsync(
-        StatusCampanha? status, CancellationToken cancellationToken)
+        int? id, CancellationToken cancellationToken)
     {
         var consulta = contexto.Campanhas.AsNoTracking();
-        if (status.HasValue)
+        if (id.HasValue)
         {
-            consulta = consulta.Where(c => c.Status == status.Value);
+            consulta = consulta.Where(c => c.Id == id.Value);
         }
 
         return await consulta.OrderByDescending(c => c.DataInicio)
@@ -31,16 +31,25 @@ public sealed class CampanhaRepositorio(ConexaoSolidariaContext contexto) : ICam
     }
 
     public async Task<IReadOnlyList<CampanhaTransparenciaDto>> ListarParaTransparenciaAsync(
-        CancellationToken cancellationToken)
-        => await contexto.Campanhas.AsNoTracking()
-            .Where(c => c.Status == StatusCampanha.Ativa)
-            .OrderByDescending(c => c.DataInicio)
+        int? id, CancellationToken cancellationToken)
+    {
+        var consulta = contexto.Campanhas.AsNoTracking()
+            .Where(c => c.Status == StatusCampanha.Ativa);
+        if (id.HasValue)
+        {
+            consulta = consulta.Where(c => c.Id == id.Value);
+        }
+
+        return await consulta.OrderByDescending(c => c.DataInicio)
             .ThenBy(c => c.Id)
             .Select(c => new CampanhaTransparenciaDto(
+                c.Id,
                 c.Titulo,
                 c.MetaFinanceira,
-                c.ValorTotalArrecadado))
+                c.ValorTotalArrecadado,
+                c.Status))
             .ToListAsync(cancellationToken);
+    }
 
     public async Task<bool> TentarSalvarAlteracoesAsync(CancellationToken cancellationToken)
     {

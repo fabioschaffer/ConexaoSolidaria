@@ -11,6 +11,7 @@ public sealed class TransparenciaController(CampanhaService campanhas) : Control
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<CampanhaTransparenciaDto>>> Listar(
+        [FromQuery] int? id,
         CancellationToken cancellationToken)
-        => Ok(await campanhas.ListarParaTransparenciaAsync(cancellationToken));
+        => Ok(await campanhas.ListarParaTransparenciaAsync(id, cancellationToken));
 }

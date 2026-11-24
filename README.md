@@ -156,3 +156,16 @@ Ao iniciar a API, ela executa automaticamente a migration do banco e cria os seg
 | --- | --- | --- | --- |
 | João da Silva | Doador | joao@email.com | 1234 |
 | Administrador | GestorONG | admin@admin.com | 1234 |
+
+
+## Rodar a aplicação em modo desenvolvedor
+
+Para rodar a aplicação para fins de depuração, execute o comando abaixo na pasta raíz do projeto, que ele criará os serviços necessários (banco de dados e Rabbit-Mq).
+
+```bash
+docker compose up -d --wait
+```
+
+Abra a aplicação pelo Visual Studio, marque o projeto API como 'Project StartUp' e rode.
+
+Para executar o worker, marque o projeto Worker como 'Project StartUp' e rode. Ele consumirá as filas automaticamente.

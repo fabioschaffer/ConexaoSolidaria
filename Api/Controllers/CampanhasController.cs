@@ -35,17 +35,8 @@ public sealed class CampanhasController(CampanhaService campanhas) : ControllerB
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<CampanhaDto>>> Listar(
-        [FromQuery] StatusCampanha? status, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return Ok(await campanhas.ListarAsync(status, cancellationToken));
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: ex.Message);
-        }
-    }
+        [FromQuery] int? id, CancellationToken cancellationToken)
+        => Ok(await campanhas.ListarAsync(id, cancellationToken));
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Atualizar(

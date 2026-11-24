@@ -25,8 +25,12 @@ public sealed class DoacaoRepositorio(ConexaoSolidariaContext contexto) : IDoaca
         var doacao = await consulta.Select(d => new { d.CampanhaId, d.Valor }).SingleAsync(cancellationToken);
         var campanhasAlteradas = await contexto.Campanhas
             .Where(c => c.Id == doacao.CampanhaId)
-            .ExecuteUpdateAsync(c => c.SetProperty(
-                x => x.ValorTotalArrecadado, x => x.ValorTotalArrecadado + doacao.Valor), cancellationToken);
+            .ExecuteUpdateAsync(c => c
+                .SetProperty(x => x.ValorTotalArrecadado, x => x.ValorTotalArrecadado + doacao.Valor)
+                .SetProperty(x => x.Status, x =>
+                    x.Status == StatusCampanha.Ativa && x.ValorTotalArrecadado + doacao.Valor >= x.MetaFinanceira
+                        ? StatusCampanha.Concluida
+                        : x.Status), cancellationToken);
 
         if (campanhasAlteradas != 1)
         {

@@ -107,7 +107,7 @@ Execute cada port-forward em um terminal e mantenha-o aberto enquanto usar a int
 
 | Interface | Comando | Endereço |
 | --- | --- | --- |
-| API (Swagger) | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/api 8080:8080` | http://localhost:8080/swagger |
+| API | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/api 8080:8080` | http://localhost:8080/swagger |
 | Grafana | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/grafana 3000:3000` | http://localhost:3000 |
 | Zabbix | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/zabbix-web 8081:8080` | http://localhost:8081 |
 | RabbitMQ | `kubectl --context docker-desktop -n conexaosolidaria port-forward svc/rabbitmq 15672:15672` | http://localhost:15672 |

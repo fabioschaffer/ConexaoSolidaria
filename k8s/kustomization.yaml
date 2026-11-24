@@ -9,6 +9,7 @@ resources:
   - api.yaml
   - worker.yaml
   - observabilidade.yaml
+  - prometheus.yaml
 configMapGenerator:
   - name: postgres-init
     files:

@@ -20,6 +20,9 @@ const string bancoZabbix = "zabbix";
 
 var fonteAplicacao = new { type = "postgres", uid = "postgres-conexao" };
 var fonteZabbix = new { type = "postgres", uid = "postgres-zabbix-conexao" };
+var fontePrometheus = new { type = "prometheus", uid = "prometheus-conexao" };
+var prometheusUrl = Environment.GetEnvironmentVariable("PROMETHEUS_URL");
+const string namespaceMetricas = "conexaosolidaria";
 var metricas = new[]
 {
     (Campo: "requisicoes", Titulo: "Requisições HTTP"),
@@ -50,6 +53,18 @@ var senhaLeitura = Convert.ToHexString(RandomNumberGenerator.GetBytes(24));
 await ConfigurarPostgresAsync(senhaLeitura);
 await ConfigurarFonteAsync(fonteAplicacao.uid, bancoAplicacao, "PostgreSQL Conexão Solidária", senhaLeitura);
 await ConfigurarFonteAsync(fonteZabbix.uid, bancoZabbix, "Histórico Zabbix Conexão Solidária", senhaLeitura);
+if (!string.IsNullOrWhiteSpace(prometheusUrl))
+{
+    await SalvarFonteAsync(fontePrometheus.uid, new
+    {
+        uid = fontePrometheus.uid,
+        type = fontePrometheus.type,
+        name = "Prometheus Kubernetes",
+        access = "proxy",
+        url = prometheusUrl,
+        jsonData = new { timeInterval = "15s" }
+    });
+}
 await ConfigurarDashboardAsync();
 
 Console.WriteLine("Coleta Zabbix e dashboard Conexão Solidária configurados.");
@@ -278,6 +293,11 @@ async Task ConfigurarFonteAsync(string uid, string banco, string nome, string se
         secureJsonData = new { password = senha }
     };
 
+    await SalvarFonteAsync(uid, configuracao);
+}
+
+async Task SalvarFonteAsync(string uid, object configuracao)
+{
     var rota = $"/api/datasources/uid/{uid}";
     try
     {
@@ -294,13 +314,6 @@ async Task ConfigurarFonteAsync(string uid, string banco, string nome, string se
 
 async Task ConfigurarDashboardAsync()
 {
-    const string doacoesNoPeriodo = "grafana_conexao.processadas($__timeFrom(), $__timeTo())";
-    const string agrupamentoDoacoes = """
-        date_bin(
-            CASE WHEN $__timeTo()::timestamptz - $__timeFrom()::timestamptz > interval '2 days'
-                 THEN interval '1 day' ELSE interval '1 hour' END,
-            processada_em, timestamptz '2000-01-01 00:00:00-03')
-        """;
     const string amostrasApi = """
         WITH api AS (
             SELECT instante, dados, lag(dados) OVER (ORDER BY instante) AS anterior,
@@ -327,44 +340,15 @@ async Task ConfigurarDashboardAsync()
         )
         """;
 
-    var paineis = new[]
+    var paineis = new List<object>
     {
-        Painel(1, "Arrecadação por campanha", "table", fonteAplicacao, 0, 0, 16, 8, """
-            SELECT titulo AS "Campanha", arrecadado AS "Arrecadado", meta AS "Meta",
-                   100 * arrecadado / nullif(meta, 0) AS "Meta atingida"
-            FROM grafana_conexao.campanhas()
-            ORDER BY arrecadado DESC, id
-            """, campos: [Campo("Arrecadado", "currencyBRL"), Campo("Meta", "currencyBRL"),
-                Campo("Meta atingida", "percent", barra: true)]),
-        Painel(2, "Doações pendentes", "stat", fonteAplicacao, 16, 0, 8, 8, """
-            SELECT quantidade AS "Pendentes", idade_segundos AS "Idade da mais antiga"
-            FROM grafana_conexao.pendencias()
-            """, campos: [Campo("Idade da mais antiga", "s")]),
-        Painel(3, "Doações processadas", "timeseries", fonteAplicacao, 0, 8, 12, 8, $"""
-            SELECT min(processada_em) AS time,
-                count(*) AS "Doações"
-            FROM {doacoesNoPeriodo}
-            GROUP BY {agrupamentoDoacoes} ORDER BY 1
-            """, exibirPontos: true),
-        Painel(4, "Valor das doações processadas", "timeseries", fonteAplicacao, 12, 8, 12, 8, $"""
-            SELECT min(processada_em) AS time,
-                sum(valor) AS "Valor"
-            FROM {doacoesNoPeriodo}
-            GROUP BY {agrupamentoDoacoes} ORDER BY 1
-            """, unidade: "currencyBRL", exibirPontos: true),
-        Painel(5, "Requisições HTTP", "timeseries", fonteZabbix, 0, 16, 16, 8,
+        Painel(5, "Requisições HTTP", "timeseries", fonteZabbix, 0, 0, 24, 8,
             deltasApi + """
 
             SELECT instante AS time, requisicoes AS "Requisições"
             FROM deltas ORDER BY 1
             """, descricao: "Quantidade de requisições HTTP entre as coletas do Zabbix."),
-        Painel(6, "Taxa de erros HTTP 5xx", "stat", fonteZabbix, 16, 16, 8, 8,
-            deltasApi + """
-
-            SELECT 100 * sum(erros) / nullif(sum(requisicoes), 0) AS "Erros 5xx"
-            FROM deltas
-            """, unidade: "percent"),
-        Painel(7, "Fila de doações no RabbitMQ", "timeseries", fonteZabbix, 0, 24, 16, 8, """
+        Painel(7, "Fila Rabbit-MQ", "timeseries", fonteZabbix, 0, 8, 24, 8, """
             SELECT instante AS time, (dados->>'prontas')::int AS "Mensagens prontas",
                    (dados->>'semConfirmacao')::int AS "Aguardando confirmação",
                    (dados->>'consumidores')::int AS "Consumidores"
@@ -372,12 +356,34 @@ async Task ConfigurarDashboardAsync()
             WHERE metrica = 'rabbitmq.doacoes' AND $__unixEpochFilter(segundo)
             ORDER BY 1
             """),
-        Painel(8, "Tempo de processamento das doações", "stat", fonteAplicacao, 16, 24, 8, 8, $"""
-            SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY duracao_segundos) AS "Mediana",
-                   percentile_cont(0.95) WITHIN GROUP (ORDER BY duracao_segundos) AS "p95"
-            FROM {doacoesNoPeriodo}
-            """, unidade: "s"),
-        Painel(9, "Erros HTTP 5xx por endpoint", "table", fonteZabbix, 0, 32, 24, 9,
+    };
+
+    var linhaErros = 16;
+    if (!string.IsNullOrWhiteSpace(prometheusUrl))
+    {
+        var filtroNamespace = $$"""{namespace="{{namespaceMetricas}}"}""";
+        paineis.AddRange([
+            PainelPrometheus(10, "Consumo CPU Pods", 0, 16, 12,
+                $"1000 * sum by (pod) (rate(pod_cpu_usage_seconds_total{filtroNamespace}[$__rate_interval]))",
+                "{{pod}}", "suffix: mCPU", "Uso de CPU por pod em milinúcleos."),
+            PainelPrometheus(11, "Consumo Memória Pods", 12, 16, 12,
+                $"sum by (pod) (pod_memory_working_set_bytes{filtroNamespace})",
+                "{{pod}}", "bytes", "Memória em uso (working set) por pod."),
+            PainelPrometheus(12, "Espaço em disco dos volumes persistentes", 0, 24, 24,
+                $"max by (persistentvolumeclaim) (100 * kubelet_volume_stats_used_bytes{filtroNamespace} / kubelet_volume_stats_capacity_bytes{filtroNamespace})",
+                "{{persistentvolumeclaim}}", "percent", "Percentual ocupado por volume persistente com métricas disponíveis.")
+        ]);
+        linhaErros = 32;
+    }
+
+    paineis.AddRange([
+        Painel(6, "Taxa de erros HTTP 5xx", "stat", fonteZabbix, 0, linhaErros, 8, 9,
+            deltasApi + """
+
+            SELECT 100 * sum(erros) / nullif(sum(requisicoes), 0) AS "Erros 5xx"
+            FROM deltas
+            """, unidade: "percent"),
+        Painel(9, "Erros HTTP 5xx por endpoint", "table", fonteZabbix, 8, linhaErros, 16, 9,
             amostrasApi + """
 
             , endpoints AS (
@@ -401,7 +407,7 @@ async Task ConfigurarDashboardAsync()
             ORDER BY sum(erros) DESC NULLS LAST, metodo, rota
             """,
             descricao: "Total de erros 5xx por método e rota no período selecionado.")
-    };
+    ]);
 
     await GrafanaAsync(HttpMethod.Post, "/api/dashboards/db", new
     {
@@ -419,9 +425,24 @@ async Task ConfigurarDashboardAsync()
     });
 }
 
+object PainelPrometheus(int id, string titulo, int x, int y, int w, string consulta,
+    string legenda, string unidade, string descricao) => new
+{
+    id,
+    title = titulo,
+    description = descricao,
+    type = "timeseries",
+    datasource = fontePrometheus,
+    gridPos = new { x, y, w, h = 8 },
+    fieldConfig = new { defaults = new { unit = unidade, min = 0 } },
+    targets = new[]
+    {
+        new { refId = "A", datasource = fontePrometheus, expr = consulta, legendFormat = legenda, range = true }
+    }
+};
+
 object Painel(int id, string titulo, string tipo, object fonte, int x, int y, int w, int h,
-    string sql, string unidade = "none", object[]? campos = null, string descricao = "",
-    bool exibirPontos = false) => new
+    string sql, string unidade = "none", string descricao = "") => new
 {
     id,
     title = titulo,
@@ -431,10 +452,7 @@ object Painel(int id, string titulo, string tipo, object fonte, int x, int y, in
     gridPos = new { x, y, w, h },
     fieldConfig = new
     {
-        defaults = exibirPontos
-            ? (object)new { unit = unidade, custom = new { showPoints = "always" } }
-            : new { unit = unidade },
-        overrides = campos ?? []
+        defaults = new { unit = unidade }
     },
     targets = new[]
     {
@@ -442,19 +460,6 @@ object Painel(int id, string titulo, string tipo, object fonte, int x, int y, in
             format = tipo == "timeseries" ? "time_series" : "table", editorMode = "code" }
     }
 };
-
-object Campo(string nome, string unidade, bool barra = false)
-{
-    var propriedades = new List<object> { new { id = "unit", value = unidade } };
-    if (barra)
-    {
-        propriedades.Add(new { id = "min", value = 0 });
-        propriedades.Add(new { id = "max", value = 100 });
-        propriedades.Add(new { id = "custom.cellOptions", value = new { type = "gauge", mode = "basic" } });
-    }
-
-    return new { matcher = new { id = "byName", options = nome }, properties = propriedades };
-}
 
 string Ambiente(string chave) => Environment.GetEnvironmentVariable(chave)
     ?? throw new InvalidOperationException($"Defina {chave}.");

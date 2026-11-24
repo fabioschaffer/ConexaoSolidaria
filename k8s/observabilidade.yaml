@@ -165,6 +165,8 @@ spec:
             - configMapRef:
                 name: conexaosolidaria
           env:
+            - name: PROMETHEUS_URL
+              value: http://prometheus:9090
             - name: GRAFANA_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:

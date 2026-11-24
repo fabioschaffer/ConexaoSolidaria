@@ -38,7 +38,6 @@ flowchart TB
         Zabbix -->|"Consulta métricas da fila pela API de gerenciamento"| Rabbit
         Zabbix -->|"Grava histórico de métricas"| ZabbixDB
         ZabbixWeb -->|"Consulta dados de monitoramento"| ZabbixDB
-        Grafana -->|"Consulta campanhas e doações"| AppDB
         Grafana -->|"Consulta histórico de métricas"| ZabbixDB
     end
 

@@ -84,8 +84,8 @@ services:
       RABBITMQ_QUEUE: ${RABBITMQ_QUEUE:-doacoes.recebidas}
       RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
     volumes:
-      - ./k8s/Configurar-observabilidade.cs:/app/Configurar-observabilidade.cs:ro
-    command: ['dotnet', 'run', '--file', '/app/Configurar-observabilidade.cs']
+      - ./k8s/configurar-observabilidade.cs:/app/configurar-observabilidade.cs:ro
+    command: ['dotnet', 'run', '--file', '/app/configurar-observabilidade.cs']
 
 configs:
   iniciar-postgres:

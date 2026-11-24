@@ -160,7 +160,7 @@ spec:
       containers:
         - name: configurar
           image: mcr.microsoft.com/dotnet/sdk:10.0
-          command: [dotnet, run, --file, /app/Configurar-observabilidade.cs]
+          command: [dotnet, run, --file, /app/configurar-observabilidade.cs]
           envFrom:
             - configMapRef:
                 name: conexaosolidaria
@@ -186,8 +186,8 @@ spec:
               value: $(RabbitMq__FilaDoacoesRecebidas)
           volumeMounts:
             - name: script
-              mountPath: /app/Configurar-observabilidade.cs
-              subPath: Configurar-observabilidade.cs
+              mountPath: /app/configurar-observabilidade.cs
+              subPath: configurar-observabilidade.cs
               readOnly: true
       volumes:
         - name: script

@@ -15,4 +15,4 @@ configMapGenerator:
       - iniciar-postgres.sql
   - name: configurar-observabilidade
     files:
-      - Configurar-observabilidade.cs
+      - configurar-observabilidade.cs

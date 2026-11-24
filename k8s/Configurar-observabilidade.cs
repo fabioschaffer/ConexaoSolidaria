@@ -368,12 +368,9 @@ async Task ConfigurarDashboardAsync()
                 "{{pod}}", "suffix: mCPU", "Uso de CPU por pod em milinúcleos."),
             PainelPrometheus(11, "Consumo Memória Pods", 12, 16, 12,
                 $"sum by (pod) (pod_memory_working_set_bytes{filtroNamespace})",
-                "{{pod}}", "bytes", "Memória em uso (working set) por pod."),
-            PainelPrometheus(12, "Espaço em disco dos volumes persistentes", 0, 24, 24,
-                $"max by (persistentvolumeclaim) (100 * kubelet_volume_stats_used_bytes{filtroNamespace} / kubelet_volume_stats_capacity_bytes{filtroNamespace})",
-                "{{persistentvolumeclaim}}", "percent", "Percentual ocupado por volume persistente com métricas disponíveis.")
+                "{{pod}}", "bytes", "Memória em uso (working set) por pod.")
         ]);
-        linhaErros = 32;
+        linhaErros = 24;
     }
 
     paineis.AddRange([

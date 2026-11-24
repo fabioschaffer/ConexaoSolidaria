@@ -11,6 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_VERSION: 1.${{ github.run_number }}
     steps:
       - name: Baixar código
         uses: actions/checkout@v5
@@ -25,13 +27,21 @@ jobs:
 
       - name: Gerar imagens Docker
         run: |
-          docker build --file Api/Dockerfile --tag "conexaosolidaria-api:${GITHUB_SHA}" .
-          docker build --file Worker/Dockerfile --tag "conexaosolidaria-worker:${GITHUB_SHA}" .
-          docker save --output conexaosolidaria-images.tar "conexaosolidaria-api:${GITHUB_SHA}" "conexaosolidaria-worker:${GITHUB_SHA}"
+          docker build --file Api/Dockerfile --tag "conexaosolidaria-api:${IMAGE_VERSION}" .
+          docker build --file Worker/Dockerfile --tag "conexaosolidaria-worker:${IMAGE_VERSION}" .
+          docker save --output "conexaosolidaria-api-${IMAGE_VERSION}.tar" "conexaosolidaria-api:${IMAGE_VERSION}"
+          docker save --output "conexaosolidaria-worker-${IMAGE_VERSION}.tar" "conexaosolidaria-worker:${IMAGE_VERSION}"
 
-      - name: Disponibilizar imagens
+      - name: Disponibilizar imagem da API
         uses: actions/upload-artifact@v4
         with:
-          name: conexaosolidaria-images-${{ github.sha }}
-          path: conexaosolidaria-images.tar
+          name: conexaosolidaria-api-${{ env.IMAGE_VERSION }}
+          path: conexaosolidaria-api-${{ env.IMAGE_VERSION }}.tar
+          if-no-files-found: error
+
+      - name: Disponibilizar imagem do Worker
+        uses: actions/upload-artifact@v4
+        with:
+          name: conexaosolidaria-worker-${{ env.IMAGE_VERSION }}
+          path: conexaosolidaria-worker-${{ env.IMAGE_VERSION }}.tar
           if-no-files-found: error
